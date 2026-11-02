@@ -66,25 +66,28 @@ impl Overlay {
 
         let overlay = Self::new(state.win, width, height);
 
-        overlay.print(text, state);
+        overlay.print(text, Some(state));
     }
 
-    pub fn print(&self, text: &str, state: &mut State) {
+    pub fn print(&self, text: &str, state: Option<&mut State>) {
         self.draw_border();
 
         let lines = text.split('\n');
         for (i, line) in lines.enumerate() {
             println!("{}{}", Goto(self.y+i as u16, self.x), line)
         }
-        while !inputs::handle_input(getch(), state, None, None) {
-            self.draw_border();
-
-            let lines = text.split('\n');
-            for (i, line) in lines.enumerate() {
-                println!("{}{}", Goto(self.y+i as u16, self.x), line)
+        if state.is_some() {
+            let state = state.unwrap();
+            while !inputs::handle_input(getch(), state, None, None) {
+                self.draw_border();
+    
+                let lines = text.split('\n');
+                for (i, line) in lines.enumerate() {
+                    println!("{}{}", Goto(self.y+i as u16, self.x), line)
+                }
             }
         }
     }
 
-    pub fn draw(&self, state: &mut State) { self.print(self.text.as_ref().unwrap().as_str(), state) }
+    pub fn draw(&self) { self.print(self.text.as_ref().unwrap().as_str(), None) }
 }

@@ -44,7 +44,7 @@ fn startup_sequence() {
     ellipsis(8);
     println!("{}", warning("Map data may have been corrupted or lost when loading"));
     sleep(250);
-    println!("{}", debug("Failed to write over data in ROM at address $3000-$39FF (map data)"));
+    println!("{}", debug("Failed to write over data in ROM at address $2000-$2FFF (map data)"));
     sleep(250);
     println!("{}", debug("Possible faulty initial RAM decay pattern"));
     sleep(250);
@@ -57,7 +57,7 @@ fn startup_sequence() {
     println!("{}", error("Compatible audio driver not found, skipping"));
     println!("{}", info("Finishing setup"));
     ellipsis(9);
-    println!("{}", error("Failed to purge God, skipping"));
+    println!("{}", error("Failed to read byte $3000 (forgotten), skipping"));
     print!("{}{}", debug("3000"), Save);
     for _ in 0..3000 {
         println!("{}3000{}", Restore, Save);
@@ -86,24 +86,29 @@ fn main() {
     keypad(state.win, true);
 
     let screen_w = getmaxx(state.win) as u16;
+    let screen_h = getmaxy(state.win) as u16;
 
     let maps: [Map; 2] = [
         Map::new([
-            "              ---3---           ",
-            "        ---00--     ------      ",
-            "---------                |      ",
-            "|                   1    +##### ",
-            "---------------          |    # ",
-            "              ---+--------    # ",
-            "  -------------  #         #### ",
-            "  |           |  #  ------ #    ",
-            "  |           |  ###+    - #####",
-            "  |           |  #  ---+--     #",
-            "  --------+----  #     #       #",
-            "          ########     #########",
+            "  ------        ----333-----    ",
+            "  0    ----------          |    ",
+            "  0                     11 |    ",
+            "  0    ----------        1 |    ",
+            "  ------        -----+------    ",
+            "                     #          ",
+            "    --------------   #          ",
+            "    |            |   #  ------  ",
+            "    | 7  5  4  2 |   ###+    -  ",
+            "    | 7  5  4  2 |   #  ---+--  ",
+            "    ----------+---   #          ",
+            "              ########          ",
         ])
             .set_interact(b'0', Some("Window"), "Look out window?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "It's just the vast expanse of the Indian Ocean")})
             .set_interact(b'1', Some("Pile of papers"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "Nothing of note, looks like someone dropped them in a hurry")})
+            .set_interact(b'2', Some("Bed"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "Why you snooping?")})
+            .set_interact(b'4', Some("Bed"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "Why you snooping?")})
+            .set_interact(b'5', Some("Bed"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "Why you snooping?")})
+            .set_interact(b'7', Some("Bed"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, &format!("This is honestly concerning, there were four beds that belonged to people you may or may not know.\nFrom a gamer perspective I can get checking out one of them, maybe even two, but {}all four{}?\nThis is honestly disgusting behavior and you should be ashamed of yourself.", Italic, NotItalic))})
             .set_interact(b'3', Some("Door"), "Go to Lab 1?", |state,p,_m| {state.current_map = 1; p.pos = (10,16)}),
         Map::new([
             "         ---------------        ",
@@ -112,15 +117,16 @@ fn main() {
             "         |             |        ",
             "         |             |        ",
             "         |---------    |        ",
-            "         |             |        ",
+            "         | 2           |        ",
             "         |         |   |        ",
             "         |    ------   |        ",
             "         |             |        ",
             "         |             |        ",
             "         ------000------        ",
         ])
-            .set_interact(b'0', Some("Door"), "Go back main hull?", |state,p,_m| {state.current_map = 0; p.pos = (1,17);})
-            .set_interact(b'1', Some("Table"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "There's just some science equipment")}),
+            .set_interact(b'0', Some("Door"), "Go back main hull?", |state,p,_m| {state.current_map = 0; p.pos = (1,19);})
+            .set_interact(b'1', Some("Table"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "There's just some science equipment, nothing you understand")})
+            .set_interact(b'2', Some("Broken glass"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, &format!("A puddle of mostly clear liquid.\nIn the puddle there's shards you see shards of a glass vial labeled {}Y-909{}\n{}{}What were you looking for again?{}{}", Bold, NotBold, Gray, Italic, NotItalic, DefaultColor))}),
     ];
 
     let mut player = Player {
@@ -140,10 +146,17 @@ fn main() {
  \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
         pad(&String::from("Erimita Interactive LLC."), ' ', 54),
         pad(&String::from("c. 1986"), ' ', 54)));
-    // while !inputs::handle_input(getch(), &mut state, None, None) {
-        title_card.draw(&mut state);
+    let mut pos3000: (u64,u64) = (1,1);
+    while !inputs::handle_input(getch(), &mut state, None, None) {
+        for i in 0..3000 {
+            pos3000.0 = (pos3000.0 * 2791 + pos3000.1) % (screen_h+1) as u64;
+            pos3000.1 = (pos3000.1 * 7129 + pos3000.0) % ((screen_w+1) as u64/4);
+            print!("{}{}3000{}", Goto(pos3000.0 as u16, pos3000.1 as u16*4), C256((i%5) as u8+234), DefaultColor);
+        }
+        title_card.draw();
         println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((screen_w-18)/2), Blink, NotBlink);
-    // }
+    }
+
     let mut map = &maps[state.current_map];
     draw(&mut state, &mut player, &map);
     state.ctx = inputs::Context::Map;

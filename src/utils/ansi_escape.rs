@@ -20,7 +20,7 @@ pub enum Color {
     LightMagenta,
     LightCyan,
     White,
-    C256(i8),
+    C256(u8),
 }
 impl Display for Color {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -42,7 +42,7 @@ impl Display for Color {
             Color::LightMagenta => write!(f, "\x1b[95m"),
             Color::LightCyan => write!(f, "\x1b[96m"),
             Color::White => write!(f, "\x1b[97m"),
-            Color::C256(n) => write!(f, "\x1b[38;5;{}", n),
+            Color::C256(n) => write!(f, "\x1b[38;5;{}m", n),
         }
     }
 }
