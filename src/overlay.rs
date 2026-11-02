@@ -1,6 +1,8 @@
+use crate::inputs;
 use crate::utils::*;
 use crate::State;
 
+use ncurses::getch;
 use regex::Regex;
 
 pub struct Overlay {
@@ -64,19 +66,25 @@ impl Overlay {
 
         let overlay = Self::new(state.win, width, height);
 
-        overlay.print(text);
+        overlay.print(text, state);
     }
 
-    pub fn print(&self, text: &str) {
+    pub fn print(&self, text: &str, state: &mut State) {
         self.draw_border();
-        // let lines: Vec<char> = text.chars().collect();
-        // let lines = lines.chunks(self.w as usize);
-        // let lines = wrap(text, self.w as usize);
+
         let lines = text.split('\n');
         for (i, line) in lines.enumerate() {
             println!("{}{}", Goto(self.y+i as u16, self.x), line)
         }
+        while !inputs::handle_input(getch(), state, None, None) {
+            self.draw_border();
+
+            let lines = text.split('\n');
+            for (i, line) in lines.enumerate() {
+                println!("{}{}", Goto(self.y+i as u16, self.x), line)
+            }
+        }
     }
 
-    pub fn draw(&self) { self.print(self.text.as_ref().unwrap().as_str()) }
+    pub fn draw(&self, state: &mut State) { self.print(self.text.as_ref().unwrap().as_str(), state) }
 }

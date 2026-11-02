@@ -16,6 +16,7 @@ struct State {
     win: *mut i8,
     current_map: usize,
     ctx: inputs::Context,
+    current_objective: String,
 }
 
 fn ellipsis(ticks: usize) {
@@ -80,6 +81,7 @@ fn main() {
         win: initscr(),
         current_map: 0,
         ctx: inputs::Context::Title,
+        current_objective: String::from("Explore"),
     };
     keypad(state.win, true);
 
@@ -95,28 +97,30 @@ fn main() {
             "              ---+--------    # ",
             "  -------------  #         #### ",
             "  |           |  #  ------ #    ",
-            "  |   2222    |  ###+    - #####",
+            "  |           |  ###+    - #####",
             "  |           |  #  ---+--     #",
             "  --------+----  #     #       #",
             "          ########     #########",
         ])
-            .set_interact(b'0', Some("Window"), "Look out window", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "text")})
-            .set_interact(b'3', Some("Door"), "Go to room", |state,p,_m| {state.current_map = 1; p.pos = (10,17)}),
+            .set_interact(b'0', Some("Window"), "Look out window?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "It's just the vast expanse of the Indian Ocean")})
+            .set_interact(b'1', Some("Pile of papers"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "Nothing of note, looks like someone dropped them in a hurry")})
+            .set_interact(b'3', Some("Door"), "Go to Lab 1?", |state,p,_m| {state.current_map = 1; p.pos = (10,16)}),
         Map::new([
-            "          ---------------       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          |             |       ",
-            "          ------000------       ",
+            "         ---------------        ",
+            "         |             |        ",
+            "         |    111      |        ",
+            "         |             |        ",
+            "         |             |        ",
+            "         |---------    |        ",
+            "         |             |        ",
+            "         |         |   |        ",
+            "         |    ------   |        ",
+            "         |             |        ",
+            "         |             |        ",
+            "         ------000------        ",
         ])
-            .set_interact(b'0', Some("Door"), "Go back to room", |state,p,_m| {state.current_map = 0; p.pos = (1,17);}),
+            .set_interact(b'0', Some("Door"), "Go back main hull?", |state,p,_m| {state.current_map = 0; p.pos = (1,17);})
+            .set_interact(b'1', Some("Table"), "Examine?", |state,_p,_m| {state.ctx=inputs::Context::Overlay; Overlay::print_new(state, "There's just some science equipment")}),
     ];
 
     let mut player = Player {
@@ -136,10 +140,10 @@ fn main() {
  \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
         pad(&String::from("Erimita Interactive LLC."), ' ', 54),
         pad(&String::from("c. 1986"), ' ', 54)));
-    while !inputs::handle_input(getch(), &mut state, None, None) {
-        title_card.draw();
+    // while !inputs::handle_input(getch(), &mut state, None, None) {
+        title_card.draw(&mut state);
         println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((screen_w-18)/2), Blink, NotBlink);
-    }
+    // }
     let mut map = &maps[state.current_map];
     draw(&mut state, &mut player, &map);
     state.ctx = inputs::Context::Map;
