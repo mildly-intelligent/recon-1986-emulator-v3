@@ -17,6 +17,26 @@ struct State {
     current_map: usize,
     ctx: inputs::Context,
     current_objective: String,
+    inventory: Vec<String>,
+}
+impl State {
+    fn draw(&mut self) {
+        let (screen_w, screen_h) = (getmaxx(self.win) as u16, getmaxy(self.win) as u16);
+
+        let x = screen_w / 16;
+        let state_y = (screen_h - (crate::MAP_ROWS as u16*crate::SCALE.1))/3 + crate::SCALE.1*12;
+        let y = (state_y + screen_h) / 2;
+        let w = screen_w * 1/8;
+        println!("{}{}", Goto(state_y+1, x), "~".repeat(w as usize));
+        println!("{}{}", Goto(y-1, x), pad(&format!("{}Current objective{}", Bold, NotBold), ' ', w as usize));
+        println!("{}{}", Goto(y+1, x), pad(&self.current_objective, ' ', w as usize));
+        println!("{}{}", Goto(screen_h as u16 - 1, x), "~".repeat(w as usize));
+
+        println!("{}{}", Goto(state_y+1, x*12), "~".repeat(w as usize*2));
+        println!("{}{}", Goto(y-1, x*12), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w as usize*2));
+        println!("{}{}", Goto(y+1, x*12), pad(&self.inventory.join(" | "), ' ', w as usize*2));
+        println!("{}{}", Goto(screen_h as u16 - 1, x*12), "~".repeat(w as usize*2));
+    }
 }
 
 fn ellipsis(ticks: usize) {
@@ -82,6 +102,11 @@ fn main() {
         current_map: 0,
         ctx: inputs::Context::Title,
         current_objective: String::from("Explore"),
+        inventory: vec![
+            String::from("Swiss army knife"),
+            String::from("Cheese"),
+            String::from("Flashlight"),
+        ]
     };
     keypad(state.win, true);
 
@@ -92,14 +117,14 @@ fn main() {
         Map::new([
             "  ------        ----333-----    ",
             "  0    ----------          |    ",
-            "  0                     11 |    ",
-            "  0    ----------        1 |    ",
+            "  0                      1 |    ",
+            "  0    ----------          |    ",
             "  ------        -----+------    ",
             "                     #          ",
             "    --------------   #          ",
             "    |            |   #  ------  ",
-            "    | 7  5  4  2 |   ###+    -  ",
-            "    | 7  5  4  2 |   #  ---+--  ",
+            "    | 7  5  4  2 |   ###+    |  ",
+            "    | 7  5  4  2 |   #  ------  ",
             "    ----------+---   #          ",
             "              ########          ",
         ])
@@ -163,5 +188,6 @@ fn main() {
     while !inputs::handle_input(getch(), &mut state, Some(&mut player), Some(&map)) {        
         map = &maps[state.current_map];
         draw(&mut state, &mut player, &map);
+        state.draw();
     }
 }
