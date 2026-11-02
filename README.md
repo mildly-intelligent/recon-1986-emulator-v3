@@ -1,6 +1,8 @@
 # recon-1986-emulator-v3
 
-Version 3.0 of the community emulator of the 1986 arcade game, *Recon* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
+Version 3.3 of the community emulator of the 1986 arcade game, *Recon* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
+
+![Title screen](./screenshot.png)
 
 ## Features
 
@@ -12,6 +14,13 @@ Version 3.0 of the community emulator of the 1986 arcade game, *Recon* by Eremit
 # Real README
 
 (A game made for [Terra](https://terra.hackclub.com/))
+
+## About
+This is mostly the shell of a game as I didn't have time (or motivation) to turn this into a full game.
+I have:
+- Maps and movement
+- Cool TUI title screen
+- Interactive objects
 
 ## Installation
 ### Linux
