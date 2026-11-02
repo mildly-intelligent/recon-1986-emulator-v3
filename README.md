@@ -13,6 +13,10 @@ I have:
 - Cool TUI title screen
 - Interactive objects
 
+## How and why I made this
+I made this in Rust using `ncurses`
+This week's Terra theme was "Retro" and my first thought was something terminal based and inspired by the original 1980s title "Rogue".
+
 ## Installation
 ### Linux / MacOS
 Simply install the binary from the release
