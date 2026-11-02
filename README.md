@@ -13,12 +13,20 @@ Version 3.0 of the community emulator of the 1986 arcade game, *Recon* by Eremit
 
 (A game made for [Terra](https://terra.hackclub.com/))
 
-## Playing
-
-Download the compiled release for either linux or windows.
+## Installation
+### Linux
+Simply install the binary from the release
+### Windows / MacOS
+- Follow the instructions [here](https://doc.rust-lang.org/stable/cargo/getting-started/installation.html) to download `cargo` (Rust's package manager)
+```shell
+git clone https://github.com/mildly-intelligent/recon-1986-emulator-v3.git
+cd recon-1986-emulator-v3
+cargo build --release
+```
+- Run the binary in `./target/release/`
 
 ## Inspiration
 
-- Story: Majorly inspired by [SCP-3000](https://scp-wiki.wikidot.com/scp-3000) which is blatantly obvious to those who've read it
+- Story: Majorly inspired by [SCP-3000](https://scp-wiki.wikidot.com/scp-3000)
 - Vibes: Based off [PROXIMATE](https://store.steampowered.com/app/2957800/PROXIMATE/) and [Iron Lung](https://store.steampowered.com/app/1846170/Iron_Lung/) (Neither of which I have played but I know the vibes)
 - Visuals: The original [Rogue](https://store.steampowered.com/app/1443430/Rogue/) which is why I'm calling this a Roguelike (I'm very funny, see)
