@@ -23,16 +23,10 @@ I have:
 - Interactive objects
 
 ## Installation
-### Linux
+### Linux / MacOS
 Simply install the binary from the release
-### Windows / MacOS
-- Follow the instructions [here](https://doc.rust-lang.org/stable/cargo/getting-started/installation.html) to download `cargo` (Rust's package manager)
-```shell
-git clone https://github.com/mildly-intelligent/recon-1986-emulator-v3.git
-cd recon-1986-emulator-v3
-cargo build --release
-```
-- Run the binary in `./target/release/`
+### Windows
+You'll have to compile it yourself, good luck!
 
 ## Inspiration
 
