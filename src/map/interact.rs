@@ -1,7 +1,7 @@
 use crate::utils::*;
-use crate::{State, map::Map, player::Player};
+use crate::State;
 
-pub type InteractAction = dyn Fn(&mut State, &mut Player, &Map) -> ();
+pub type InteractAction = dyn Fn(&mut crate::Data) -> ();
 
 pub struct Interact {
     pub name: Option<String>,
@@ -13,7 +13,7 @@ impl Default for Interact {
         Self {
             name: None,
             description: String::from("Default action"),
-            action: Box::new(|_state,_p,_m| ())
+            action: Box::new(|_d| ())
         }
     }
 }

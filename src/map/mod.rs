@@ -1,7 +1,7 @@
 mod interact;
 
 use crate::utils::*;
-use crate::{State, player::Player};
+use crate::State;
 use interact::Interact;
 
 use std::collections::HashMap;
@@ -62,7 +62,7 @@ impl Map {
     }
 
     pub fn set_interact<F>(self, index: u8, name: Option<&str>, description: &str, action: F) -> Self
-    where F: Fn(&mut State, &mut Player, &Map) -> () + 'static
+    where F: Fn(&mut crate::Data) -> () + 'static
     {
         let mut new = self;
         new.interacts.insert(

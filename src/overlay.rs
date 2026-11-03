@@ -56,7 +56,7 @@ impl Overlay {
         println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w as usize+4));
     }
 
-    pub fn print_new(state: &mut State, text: &str) {
+    pub fn print_new(data: &mut crate::Data, text: &str) {
         let split: Vec<&str> = text.split('\n').collect();
         let width = split.iter()
             .map(|a| ANSI_REGEX.replace_all(a, "").chars().count())
@@ -64,21 +64,21 @@ impl Overlay {
             .unwrap() as u16;
         let height = split.len() as u16;
 
-        let overlay = Self::new(state.win, width, height);
+        let overlay = Self::new(data.0.win, width, height);
 
-        overlay.print(text, Some(state));
+        overlay.print(text, Some(data));
     }
 
-    pub fn print(&self, text: &str, state: Option<&mut State>) {
+    pub fn print(&self, text: &str, data: Option<&mut crate::Data>) {
         self.draw_border();
 
         let lines = text.split('\n');
         for (i, line) in lines.enumerate() {
             println!("{}{}", Goto(self.y+i as u16, self.x), line)
         }
-        if state.is_some() {
-            let state = state.unwrap();
-            while !inputs::handle_input(getch(), state, None, None) {
+        if data.is_some() {
+            let data = data.unwrap();
+            while !inputs::handle_input(getch(), data) {
                 self.draw_border();
     
                 let lines = text.split('\n');
