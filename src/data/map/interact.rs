@@ -1,7 +1,7 @@
 use crate::utils::*;
-use crate::State;
+use crate::data::{Data, State};
 
-pub type InteractAction = dyn Fn(&mut crate::Data) -> ();
+pub type InteractAction = dyn Fn(&mut Data) -> ();
 
 pub struct Interact {
     pub name: Option<String>,

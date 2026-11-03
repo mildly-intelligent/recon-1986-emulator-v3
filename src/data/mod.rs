@@ -1,0 +1,45 @@
+pub mod map;
+pub mod player;
+
+use crate::utils::*;
+use map::Map;
+use player::Player;
+
+pub struct State {
+    pub win: *mut i8,
+    pub current_map: usize,
+    pub ctx: crate::inputs::Context,
+    pub current_objective: String,
+    pub inventory: Vec<String>,
+}
+impl State {
+    pub fn draw(&mut self) {
+        let (screen_w, screen_h) = (getmaxx(self.win) as u16, getmaxy(self.win) as u16);
+
+        let x = screen_w / 16;
+        let state_y = (screen_h - (crate::MAP_ROWS as u16*crate::SCALE.1))/3 + crate::SCALE.1*12;
+        let y = (state_y + screen_h) / 2;
+        let w = screen_w * 1/8;
+        println!("{}{}", Goto(state_y+1, x), "~".repeat(w as usize));
+        println!("{}{}", Goto(y-1, x), pad(&format!("{}Current objective{}", Bold, NotBold), ' ', w as usize));
+        println!("{}{}", Goto(y+1, x), pad(&self.current_objective, ' ', w as usize));
+        println!("{}{}", Goto(screen_h as u16 - 1, x), "~".repeat(w as usize));
+
+        println!("{}{}", Goto(state_y+1, x*12), "~".repeat(w as usize*2));
+        println!("{}{}", Goto(y-1, x*12), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w as usize*2));
+        println!("{}{}", Goto(y+1, x*12), pad(&self.inventory.join(" | "), ' ', w as usize*2));
+        println!("{}{}", Goto(screen_h as u16 - 1, x*12), "~".repeat(w as usize*2));
+    }
+}
+
+pub struct Data<'a>(pub &'a mut State, pub &'a mut Player, pub &'a Map);
+impl<'a> Data<'a> {
+    pub fn draw(&mut self) {
+        let Self(state, player, map) = self;
+        print!("{}{}", Clear, Home);
+        player.get_interact(map);
+        map.draw(state, player);
+        player.draw(state, map);
+        println!();
+    }
+}

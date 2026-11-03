@@ -1,5 +1,4 @@
-
-use crate::player::MoveDir;
+use crate::data::{Data, player::MoveDir};
 
 use ncurses::{KEY_BACKSPACE, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_UP};
 
@@ -12,13 +11,13 @@ pub enum Context {
     Title,
 }
 
-fn do_interact(data: &mut crate::Data) {
+fn do_interact(data: &mut Data) {
     if let Some(i) = data.1.interact {
         (data.2.get_interact(i).unwrap().action)(data)
     }
 }
 
-pub fn handle_input(key: i32, data: &mut crate::Data) -> bool {
+pub fn handle_input(key: i32, data: &mut Data) -> bool {
     match data.0.ctx {
         Context::Map => match key {
             KEY_UP => data.1.mov(MoveDir::Up, data.2),

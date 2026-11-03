@@ -1,9 +1,11 @@
 pub mod ansi_escape;
+pub mod overlay;
 
 use regex::Regex;
 use std::sync::LazyLock;
 
 pub use ansi_escape::{Color::*, Style::*, Other::*};
+pub use overlay::Overlay;
 pub use ncurses::{getmaxx, getmaxy};
 
 pub fn repeat_char(s: &mut String, c1: char, c2: &str, n: u16) {

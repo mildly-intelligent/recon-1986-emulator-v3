@@ -1,7 +1,7 @@
 mod interact;
 
 use crate::utils::*;
-use crate::State;
+use crate::data::{State, Data};
 use interact::Interact;
 
 use std::collections::HashMap;
@@ -27,7 +27,7 @@ impl Map {
         Some(*self.lines.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
     }
 
-    pub fn draw(&self, state: &mut State, player: &mut crate::player::Player) {
+    pub fn draw(&self, state: &mut State, player: &mut super::player::Player) {
         let (w,h) = crate::SCALE;
         let x = (getmaxx(state.win) as u16 - (self.cols() as u16*w))/2;
         let y = (getmaxy(state.win) as u16 - (self.rows() as u16*h))/3;
@@ -62,7 +62,7 @@ impl Map {
     }
 
     pub fn set_interact<F>(self, index: u8, name: Option<&str>, description: &str, action: F) -> Self
-    where F: Fn(&mut crate::Data) -> () + 'static
+    where F: Fn(&mut Data) -> () + 'static
     {
         let mut new = self;
         new.interacts.insert(

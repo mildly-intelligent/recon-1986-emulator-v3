@@ -1,6 +1,6 @@
 use crate::inputs;
 use crate::utils::*;
-use crate::State;
+use crate::data::{State, Data};
 
 use ncurses::getch;
 use regex::Regex;
@@ -56,7 +56,7 @@ impl Overlay {
         println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w as usize+4));
     }
 
-    pub fn print_new(data: &mut crate::Data, text: &str) {
+    pub fn print_new(data: &mut Data, text: &str) {
         let split: Vec<&str> = text.split('\n').collect();
         let width = split.iter()
             .map(|a| ANSI_REGEX.replace_all(a, "").chars().count())
@@ -69,7 +69,7 @@ impl Overlay {
         overlay.print(text, Some(data));
     }
 
-    pub fn print(&self, text: &str, data: Option<&mut crate::Data>) {
+    pub fn print(&self, text: &str, data: Option<&mut Data>) {
         self.draw_border();
 
         let lines = text.split('\n');

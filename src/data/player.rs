@@ -1,6 +1,6 @@
 use crate::utils::*;
 
-use crate::{State, map::Map};
+use super::{State, map::Map};
 
 #[allow(dead_code)]
 pub enum MoveDir {
