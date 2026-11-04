@@ -22,14 +22,18 @@ pub fn pad(s: &String, c: char, n: usize) -> String {
 }
 
 #[allow(unused)]
-pub fn sleep_secs(secs: u64) {
-    std::thread::sleep(std::time::Duration::from_secs(secs))
+mod sleep {
+    pub fn sleep_secs(secs: u64) {
+        std::thread::sleep(std::time::Duration::from_secs(secs))
+    }
+    pub fn sleep_millis(millis: u64) {
+        std::thread::sleep(std::time::Duration::from_millis(millis))
+    }
+    pub fn sleep_micros(micros: u64) {
+        std::thread::sleep(std::time::Duration::from_micros(micros))
+    }
+    #[allow(non_upper_case_globals)]
+    pub static sleep: fn(u64) = sleep_millis;
 }
-pub fn sleep_millis(millis: u64) {
-    std::thread::sleep(std::time::Duration::from_millis(millis))
-}
-pub fn sleep_micros(micros: u64) {
-    std::thread::sleep(std::time::Duration::from_micros(micros))
-}
-#[allow(non_upper_case_globals)]
-pub static sleep: fn(u64) = sleep_millis;
+#[allow(unused)]
+pub use sleep::*;

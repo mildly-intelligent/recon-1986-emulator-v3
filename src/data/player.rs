@@ -28,7 +28,7 @@ impl Player {
             return;
         }
         let c = map.at(self.pos).unwrap();
-        if [b'-',b'|',b'?',b'0',b'1',b'2',b'3',b'4',b'5',b'6',b'7',b'8',b'9',b'A',b'B',b'C',b'D',b'E',b'F'].contains(&c) {
+        if [b'-',b'|',b'?',b'X',b'0',b'1',b'2',b'3',b'4',b'5',b'6',b'7',b'8',b'9',b'A',b'B',b'C',b'D',b'E',b'F'].contains(&c) {
             self.pos = pos_old;
             return;
         }

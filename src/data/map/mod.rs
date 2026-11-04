@@ -40,6 +40,7 @@ impl Map {
             repeat_char(&mut line, '|', "|", w);
             repeat_char(&mut line, '+', "+", w);
             repeat_char(&mut line, '#', "#", w);
+            repeat_char(&mut line, 'X', "X", w);
 
             if let Some(c) = player.interact {
                 repeat_char(&mut line, c as char, "*", w);
@@ -78,7 +79,7 @@ impl Map {
         new
     }
 
-    pub fn dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
+    pub fn _dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
         let mut new = self;
         let old_interact = new.get_interact(index_old)?;
 
@@ -99,5 +100,49 @@ impl Map {
 
     pub fn get_interact(&self, index: u8) -> Result<&Interact, ()> {
         self.interacts.get(&index).ok_or(())
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum Maps {
+    OpenOcean,
+    AirLock,
+    Crossways,
+}
+impl Into<usize> for Maps {
+    fn into(self) -> usize {
+        match self {
+            Maps::OpenOcean => 0,
+            Maps::AirLock => 1,
+            Maps::Crossways => 2,
+        }
+    }
+}
+
+use Maps::*;
+pub struct Entrance(pub Maps, pub Maps);
+impl Into<Option<(usize, usize)>> for Entrance {
+    fn into(self) -> Option<(usize, usize)> {
+        match self.1 {
+            OpenOcean => match self.0 {
+                AirLock => Some((4,15)),
+                _ => None,
+            },
+            AirLock => match self.0 {
+                OpenOcean => Some((10,15)),
+                _ => None,
+            },
+            Crossways => match self.0 {
+                _ => None,
+            },
+        }
+    }
+}
+
+impl std::ops::Index<Maps> for [Map] {
+    type Output = Map;
+
+    fn index(&self, index: Maps) -> &Self::Output {
+        &self[Into::<usize>::into(index)]
     }
 }
