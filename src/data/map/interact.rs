@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::utils::*;
 use crate::data::{Data, State};
 
@@ -6,14 +8,14 @@ pub type InteractAction = dyn Fn(&mut Data) -> ();
 pub struct Interact {
     pub name: Option<String>,
     pub description: String,
-    pub action: Box<InteractAction>,
+    pub action: Rc<InteractAction>,
 }
 impl Default for Interact {
     fn default() -> Self {
         Self {
             name: None,
             description: String::from("Default action"),
-            action: Box::new(|_d| ())
+            action: Rc::new(|_d| ())
         }
     }
 }

@@ -5,6 +5,7 @@ use crate::data::{State, Data};
 use interact::Interact;
 
 use std::collections::HashMap;
+use std::rc::Rc;
 
 // #[derive(Debug)]
 pub struct Map{
@@ -70,14 +71,33 @@ impl Map {
             Interact {
                 name: name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold))),
                 description: String::from(description),
-                action: Box::new(action),
+                action: Rc::new(action),
             }
         );
 
         new
     }
 
-    pub fn get_interact(&self, index: u8) -> Option<&Interact> {
-        self.interacts.get(&index)
+    pub fn dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
+        let mut new = self;
+        let old_interact = new.get_interact(index_old)?;
+
+        let new_name = new_name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold)));
+        let description = old_interact.description.clone();
+        let action = old_interact.action.clone();
+        new.interacts.insert(
+            index_new,
+            Interact {
+                name: new_name.or(old_interact.name.clone()),
+                description: String::from(description),
+                action,
+            }
+        );
+        
+        Ok(new)
+    }
+
+    pub fn get_interact(&self, index: u8) -> Result<&Interact, ()> {
+        self.interacts.get(&index).ok_or(())
     }
 }

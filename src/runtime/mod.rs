@@ -6,7 +6,7 @@ use crate::utils::*;
 use crate::data::{Data, State, map::Map, player::Player};
 use crate::inputs::{handle_input, Context};
 
-pub fn init<'a>(win: *mut i8) -> (State, Player, [Map;2], (u16, u16)) {
+pub fn init<'a>(win: *mut i8) -> Result<(State, Player, [Map;2], (u16, u16)), ()> {
     let state = State {
         win,
         current_map: 0,
@@ -40,8 +40,8 @@ pub fn init<'a>(win: *mut i8) -> (State, Player, [Map;2], (u16, u16)) {
             .set_interact(b'0', Some("Window"), "Look out window?", |d| Overlay::print_new_ctx(d, "It's just the vast expanse of the Indian Ocean"))
             .set_interact(b'1', Some("Pile of papers"), "Examine?", |d| Overlay::print_new_ctx(d, "Nothing of note, looks like someone dropped them in a hurry"))
             .set_interact(b'2', Some("Bed"), "Examine?", |d| Overlay::print_new_ctx(d, "Why you snooping?"))
-            .set_interact(b'4', Some("Bed"), "Examine?", |d| Overlay::print_new_ctx(d, "Why you snooping?"))
-            .set_interact(b'5', Some("Bed"), "Examine?", |d| Overlay::print_new_ctx(d, "Why you snooping?"))
+            .dup_interact(b'4', b'2', None)?
+            .dup_interact(b'5', b'2', None)?
             .set_interact(b'7', Some("Bed"), "Examine?", |d| Overlay::print_new_ctx(d, &format!("This is honestly concerning, there were four beds that belonged to people you may or may not know.\nFrom a gamer perspective I can get checking out one of them, maybe even two, but {}all four{}?\nThis is honestly disgusting behavior and you should be ashamed of yourself.", Italic, NotItalic)))
             .set_interact(b'3', Some("Door"), "Go to Lab 1?", |d| {d.0.current_map = 1; d.1.pos = (10,16)}),
         Map::new([
@@ -68,7 +68,7 @@ pub fn init<'a>(win: *mut i8) -> (State, Player, [Map;2], (u16, u16)) {
         interact: None
     };
 
-    (state, player, maps, (screen_w, screen_h))
+    Ok((state, player, maps, (screen_w, screen_h)))
 }
 
 pub fn start(data: &mut Data, (w, h): (u16, u16)) {

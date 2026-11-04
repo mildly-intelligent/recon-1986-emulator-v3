@@ -14,7 +14,7 @@ fn main() {
 
     ncurses::keypad(win, true);
     
-    let (mut s, mut p, maps, (w, h)) = runtime::init(win);
+    let (mut s, mut p, maps, (w, h)) = runtime::init(win).unwrap();
     let m = &maps[s.current_map];
     let mut data = data::Data(&mut s, &mut p, &m);
 
