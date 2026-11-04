@@ -6,7 +6,7 @@ use crate::utils::*;
 use crate::data::{Data, State, map::Map, player::Player};
 use crate::inputs::{handle_input, Context};
 
-pub fn init<'a>(win: *mut i8) -> Result<(State, Player, [Map;2], (u16, u16)), ()> {
+pub fn init<'a>(win: *mut i8) -> Result<(State, Player, [Map;2], (usize, usize)), ()> {
     let state = State {
         win,
         current_map: 0,
@@ -19,8 +19,8 @@ pub fn init<'a>(win: *mut i8) -> Result<(State, Player, [Map;2], (u16, u16)), ()
         ]
     };
 
-    let screen_w = getmaxx(state.win) as u16;
-    let screen_h = getmaxy(state.win) as u16;
+    let screen_w = getmaxx(state.win) as usize;
+    let screen_h = getmaxy(state.win) as usize;
 
     let maps: [Map; 2] = [
         Map::new([
@@ -71,7 +71,7 @@ pub fn init<'a>(win: *mut i8) -> Result<(State, Player, [Map;2], (u16, u16)), ()
     Ok((state, player, maps, (screen_w, screen_h)))
 }
 
-pub fn start(data: &mut Data, (w, h): (u16, u16)) {
+pub fn start(data: &mut Data, (w, h): (usize, usize)) {
     if !cfg!(debug_assertions) {startup::startup_sequence() }
 
     println!("{}{}\x1b[?25l", Clear, Home);
@@ -84,12 +84,12 @@ pub fn start(data: &mut Data, (w, h): (u16, u16)) {
  \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
         pad(&String::from("Erimita Interactive LLC."), ' ', 54),
         pad(&String::from("c. 1986"), ' ', 54)));
-    let mut pos3000: (u64,u64) = (1,1);
+    let mut pos3000: (usize,usize) = (1,1);
     while !handle_input(getch(), data) {
         for i in 0..3000 {
-            pos3000.0 = (pos3000.0 * 2791 + pos3000.1) % (h+1) as u64;
-            pos3000.1 = (pos3000.1 * 7129 + pos3000.0) % ((w+1) as u64/4);
-            print!("{}{}3000{}", Goto(pos3000.0 as u16, pos3000.1 as u16*4), C256((i%5) as u8+234), DefaultColor);
+            pos3000.0 = (pos3000.0 * 2791 + pos3000.1) % (h+1);
+            pos3000.1 = (pos3000.1 * 7129 + pos3000.0) % ((w+1)/4);
+            print!("{}{}3000{}", Goto(pos3000.0, pos3000.1*4), C256((i%5) as u8+234), DefaultColor);
         }
         title_card.draw();
         println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((w-18)/2), Blink, NotBlink);

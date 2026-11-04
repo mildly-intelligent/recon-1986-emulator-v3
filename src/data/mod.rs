@@ -14,21 +14,21 @@ pub struct State {
 }
 impl State {
     pub fn draw(&mut self) {
-        let (screen_w, screen_h) = (getmaxx(self.win) as u16, getmaxy(self.win) as u16);
+        let (screen_w, screen_h) = (getmaxx(self.win) as usize, getmaxy(self.win) as usize);
 
         let x = screen_w / 16;
-        let state_y = (screen_h - (crate::MAP_ROWS as u16*crate::SCALE.1))/3 + crate::SCALE.1*12;
+        let state_y = (screen_h - (crate::MAP_ROWS*crate::SCALE.1))/3 + crate::SCALE.1*12;
         let y = (state_y + screen_h) / 2;
         let w = screen_w * 1/8;
         println!("{}{}", Goto(state_y+1, x), "~".repeat(w as usize));
         println!("{}{}", Goto(y-1, x), pad(&format!("{}Current objective{}", Bold, NotBold), ' ', w as usize));
         println!("{}{}", Goto(y+1, x), pad(&self.current_objective, ' ', w as usize));
-        println!("{}{}", Goto(screen_h as u16 - 1, x), "~".repeat(w as usize));
+        println!("{}{}", Goto(screen_h - 1, x), "~".repeat(w as usize));
 
         println!("{}{}", Goto(state_y+1, x*12), "~".repeat(w as usize*2));
         println!("{}{}", Goto(y-1, x*12), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w as usize*2));
         println!("{}{}", Goto(y+1, x*12), pad(&self.inventory.join(" | "), ' ', w as usize*2));
-        println!("{}{}", Goto(screen_h as u16 - 1, x*12), "~".repeat(w as usize*2));
+        println!("{}{}", Goto(screen_h - 1, x*12), "~".repeat(w as usize*2));
     }
 }
 impl AsMut<State> for State {

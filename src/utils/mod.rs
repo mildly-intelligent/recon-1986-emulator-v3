@@ -8,8 +8,8 @@ pub use ansi_escape::{Color::*, Style::*, Other::*};
 pub use overlay::Overlay;
 pub use ncurses::{getmaxx, getmaxy};
 
-pub fn repeat_char(s: &mut String, c1: char, c2: &str, n: u16) {
-    *s = s.replace(c1, c2.repeat(n.into()).as_str());
+pub fn repeat_char(s: &mut String, c1: char, c2: &str, n: usize) {
+    *s = s.replace(c1, c2.repeat(n).as_str());
 }
 
 pub const ANSI_REGEX: LazyLock<Regex> = 

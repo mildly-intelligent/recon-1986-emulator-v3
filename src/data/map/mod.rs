@@ -24,14 +24,14 @@ impl Map {
     pub fn rows(&self) -> usize { self.lines.len() }
     pub fn cols(&self) -> usize { self.lines.iter().map(|a| a.len()).max().unwrap() }
 
-    pub fn at(&self, pos: (u16, u16)) -> Option<u8> {
+    pub fn at(&self, pos: (usize, usize)) -> Option<u8> {
         Some(*self.lines.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
     }
 
     pub fn draw(&self, state: &mut State, player: &mut super::player::Player) {
         let (w,h) = crate::SCALE;
-        let x = (getmaxx(state.win) as u16 - (self.cols() as u16*w))/2;
-        let y = (getmaxy(state.win) as u16 - (self.rows() as u16*h))/3;
+        let x = (getmaxx(state.win) as usize - (self.cols()*w))/2;
+        let y = (getmaxy(state.win) as usize - (self.rows()*h))/3;
 
         for (i, line) in self.lines.iter().enumerate() {
             let mut line = line.clone();
@@ -57,7 +57,7 @@ impl Map {
             line = line.replace("*".repeat(w.into()).as_str(), &format!("{}{}{}", Blink, "*".repeat(w.into()), NotBlink).to_string());
 
             for j in 0..h {
-                print!("{}{line}", Goto(h*i as u16+y+j, x));
+                print!("{}{line}", Goto(h*i+y+j, x));
             }
         }
     }

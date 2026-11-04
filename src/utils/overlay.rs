@@ -6,20 +6,20 @@ use ncurses::getch;
 use regex::Regex;
 
 pub struct Overlay {
-    x: u16,
-    y: u16,
-    w: u16,
-    h: u16,
+    y: usize,
+    x: usize,
+    h: usize,
+    w: usize,
     text: Option<String>,
 }
 impl Overlay {
-    pub fn new(w: *mut i8, width: u16, height: u16) -> Self {
+    pub fn new(w: *mut i8, width: usize, height: usize) -> Self {
         let screen_w = getmaxx(w) as usize;
         let screen_h = getmaxy(w) as usize;
 
         Self {
-            x: (screen_w as u16 - width) / 2,
-            y: (screen_h as u16 - height) / 2,
+            x: (screen_w - width) / 2,
+            y: (screen_h - height) / 2,
             w: width,
             h: height,
             text: None,
@@ -35,12 +35,12 @@ impl Overlay {
         let width = split.iter()
             .map(|a| ansi_regex.replace_all(a, "").chars().count())
             .max()
-            .unwrap() as u16;
-        let height = split.len() as u16;
+            .unwrap();
+        let height = split.len();
 
         Self {
-            x: (screen_w as u16 - width) / 2,
-            y: (screen_h as u16 - height) / 2,
+            x: (screen_w - width) / 2,
+            y: (screen_h - height) / 2,
             w: width,
             h: height,
             text: Some(String::from(text)),
@@ -61,8 +61,8 @@ impl Overlay {
         let width = split.iter()
             .map(|a| ANSI_REGEX.replace_all(a, "").chars().count())
             .max()
-            .unwrap() as u16;
-        let height = split.len() as u16;
+            .unwrap();
+        let height = split.len();
 
         let overlay = Self::new(data.0.win, width, height);
 
@@ -79,7 +79,7 @@ impl Overlay {
 
         let lines = text.split('\n');
         for (i, line) in lines.enumerate() {
-            println!("{}{}", Goto(self.y+i as u16, self.x), line)
+            println!("{}{}", Goto(self.y+i, self.x), line)
         }
         if data.is_some() {
             let data = data.unwrap();
@@ -88,7 +88,7 @@ impl Overlay {
     
                 let lines = text.split('\n');
                 for (i, line) in lines.enumerate() {
-                    println!("{}{}", Goto(self.y+i as u16, self.x), line)
+                    println!("{}{}", Goto(self.y+i, self.x), line)
                 }
             }
         }

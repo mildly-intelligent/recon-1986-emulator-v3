@@ -12,7 +12,7 @@ pub enum MoveDir {
 
 #[derive(Debug)]
 pub struct Player {
-    pub pos: (u16, u16),
+    pub pos: (usize, usize),
     pub interact: Option<u8>,
 }
 impl Player {
@@ -38,7 +38,7 @@ impl Player {
         }
     }
 
-    pub fn get(&self, dir: MoveDir) -> (u16,u16) {
+    pub fn get(&self, dir: MoveDir) -> (usize,usize) {
         match dir {
             MoveDir::Up =>    (self.pos.0-1, self.pos.1  ),
             MoveDir::Down =>  (self.pos.0+1, self.pos.1  ),
@@ -49,14 +49,14 @@ impl Player {
 
     pub fn draw(&self, state: &mut State, map: &Map) {
         let (w,h) = crate::SCALE;
-        let x = (getmaxx(state.win) as u16 - (map.cols() as u16*w))/2;
-        let y = (getmaxy(state.win) as u16 - (map.rows() as u16*h))/3;
+        let x = (getmaxx(state.win) as usize - (map.cols()*w))/2;
+        let y = (getmaxy(state.win) as usize - (map.rows()*h))/3;
         for i in 0..h {
             print!("{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), "█".repeat(w as usize));
         }
     }
 
-    pub fn get_interact(&mut self, map: &Map) -> Option<(u16,u16)> {
+    pub fn get_interact(&mut self, map: &Map) -> Option<(usize,usize)> {
         let pu = self.get(MoveDir::Up);
         let pd = self.get(MoveDir::Down);
         let pr = self.get(MoveDir::Right);

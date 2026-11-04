@@ -21,10 +21,10 @@ impl Default for Interact {
 }
 impl Interact {
     pub fn draw(&self, state: &mut State) {
-        let (screen_w, screen_h) = (getmaxx(state.win) as u16, getmaxy(state.win) as u16);
+        let (screen_w, screen_h) = (getmaxx(state.win) as usize, getmaxy(state.win) as usize);
 
         let x = screen_w / 16;
-        let state_y = (screen_h - (crate::MAP_ROWS as u16*crate::SCALE.1))/3 + crate::SCALE.1*12;
+        let state_y = (screen_h - (crate::MAP_ROWS*crate::SCALE.1))/3 + crate::SCALE.1*12;
         let y = (state_y + screen_h) / 2;
         let w = screen_w * 1/8;
         println!("{}{}", Goto(state_y+1, x*7), "~".repeat(w as usize));
@@ -33,6 +33,6 @@ impl Interact {
         }
         println!("{}{}", Goto(y, x*7), pad(&format!("{}{}press {}<enter>{} to{}{}", LightBlack, Italic, Blink, NotBlink, NotItalic, DefaultColor), ' ', w as usize));
         println!("{}{}", Goto(y+1, x*7), pad(&self.description, ' ', w as usize));
-        println!("{}{}", Goto(screen_h as u16 - 1, x*7), "~".repeat(w as usize));
+        println!("{}{}", Goto(screen_h - 1, x*7), "~".repeat(w as usize));
     }
 }

@@ -3,7 +3,7 @@ mod utils;
 mod data;
 mod runtime;
 
-const SCALE: (u16,u16) = (5,3);
+const SCALE: (usize,usize) = (5,3);
 const MAP_ROWS: usize = 12;
 
 fn main() {
