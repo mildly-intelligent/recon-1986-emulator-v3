@@ -31,6 +31,11 @@ impl State {
         println!("{}{}", Goto(screen_h as u16 - 1, x*12), "~".repeat(w as usize*2));
     }
 }
+impl AsMut<State> for State {
+    fn as_mut(&mut self) -> &mut State {
+        self
+    }
+}
 
 pub struct Data<'a>(pub &'a mut State, pub &'a mut Player, pub &'a Map);
 impl<'a> Data<'a> {

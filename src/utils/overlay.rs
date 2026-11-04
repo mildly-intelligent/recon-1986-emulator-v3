@@ -69,6 +69,11 @@ impl Overlay {
         overlay.print(text, Some(data));
     }
 
+    pub fn print_new_ctx(data: &mut Data, text: &str) {
+        data.0.ctx = inputs::Context::Overlay;
+        Self::print_new(data, text);
+    }
+
     pub fn print(&self, text: &str, data: Option<&mut Data>) {
         self.draw_border();
 
