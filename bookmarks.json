@@ -1,0 +1,14 @@
+{
+	"files": [
+		{
+			"path": "src/runtime/mod.rs",
+			"bookmarks": [
+				{
+					"line": 31,
+					"column": 35,
+					"label": "Map definitions"
+				}
+			]
+		}
+	]
+}
