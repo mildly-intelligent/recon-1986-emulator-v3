@@ -26,13 +26,13 @@ impl Interact {
         let x = screen_w / 16;
         let state_y = (screen_h - (crate::MAP_ROWS*crate::SCALE.1))/3 + crate::SCALE.1*12;
         let y = (state_y + screen_h) / 2;
-        let w = screen_w * 1/8;
-        println!("{}{}", Goto(state_y+1, x*7), "~".repeat(w as usize));
+        let w = screen_w * 1/16;
+        println!("{}{}", Goto(state_y+1, x*13), "~".repeat(w*2));
         if let Some(name) = &self.name {
-            println!("{}{}", Goto(y-1, x*7), pad(name, ' ', w as usize))
+            println!("{}{}", Goto(y-1, x*13), pad(name, ' ', w*2))
         }
-        println!("{}{}", Goto(y, x*7), pad(&format!("{}{}press {}<enter>{} to{}{}", LightBlack, Italic, Blink, NotBlink, NotItalic, DefaultColor), ' ', w as usize));
-        println!("{}{}", Goto(y+1, x*7), pad(&self.description, ' ', w as usize));
-        println!("{}{}", Goto(screen_h - 1, x*7), "~".repeat(w as usize));
+        println!("{}{}", Goto(y, x*13), pad(&format!("{}{}press {}<enter>{} to{}{}", LightBlack, Italic, Blink, NotBlink, NotItalic, DefaultColor), ' ', w*2));
+        println!("{}{}", Goto(y+1, x*13), pad(&self.description, ' ', w*2));
+        println!("{}{}", Goto(screen_h - 1, x*13), "~".repeat(w*2));
     }
 }
