@@ -1,18 +1,28 @@
+//! Module for all global game data
+
 pub mod map;
 pub mod player;
 
 use crate::utils::*;
-use map::{Map, Maps, Entrance};
+use map::{Map, Rooms, Entrance};
 use player::Player;
 
+/// Global game state
 pub struct State {
+    /// ncurses window pointer
     pub win: *mut i8,
-    pub current_map: Maps,
+    /// The current room the player is in
+    pub current_map: Rooms,
+    /// See [crates::inputs::Context]
     pub ctx: crate::inputs::Context,
+    /// Displays in the status bar
     pub current_objective: String,
+    /// List of items in the inventory
+    /// Currently not implemented for any reason other than the status bar
     pub inventory: Vec<String>,
 }
 impl State {
+    /// Draws the status bar at the bottom of the screen
     pub fn draw(&mut self) {
         let (screen_w, screen_h) = (getmaxx(self.win) as usize, getmaxy(self.win) as usize);
 
@@ -38,8 +48,10 @@ impl AsMut<State> for State {
     }
 }
 
+/// Collection of all data (state, player, map) that is sent to most functions
 pub struct Data<'a>(pub &'a mut State, pub &'a mut Player, pub &'a Map);
 impl<'a> Data<'a> {
+    /// Draws all relevant information to the screen
     pub fn draw(&mut self) {
         let Self(state, player, map) = self;
         print!("{}{}", Clear, Home);
@@ -49,7 +61,8 @@ impl<'a> Data<'a> {
         println!();
     }
 
-    pub fn map(&mut self, map: map::Maps) {
+    /// Switches map to a different room
+    pub fn map(&mut self, map: map::Rooms) {
         let entrance = Entrance(self.0.current_map, map);
         self.0.current_map = map;
         if let Some(pos) = entrance.into() {

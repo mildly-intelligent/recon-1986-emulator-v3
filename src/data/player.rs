@@ -1,8 +1,10 @@
-use crate::utils::*;
+//! Module for player data
 
+use crate::utils::*;
 use super::{State, map::Map};
 
 #[allow(dead_code)]
+/// Directions for moving the player
 pub enum MoveDir {
     Up,
     Down,
@@ -11,11 +13,16 @@ pub enum MoveDir {
 }
 
 #[derive(Debug)]
+/// Player character
 pub struct Player {
+    /// Current position of the player
     pub pos: (usize, usize),
+    /// If `Some`, represents the index of the interactable the player is currently looking at.
+    /// If `None`, the player is not looking at an interactable.
     pub interact: Option<u8>,
 }
 impl Player {
+    /// Moves the player and checks for collisions
     pub fn mov(&mut self, dir: MoveDir, map: &Map) {
         let pos_old = self.pos.clone();
         let c_old = map.at(self.pos).unwrap();
@@ -38,6 +45,7 @@ impl Player {
         }
     }
 
+    /// Get's the player position in one step in a given direction
     pub fn get(&self, dir: MoveDir) -> (usize,usize) {
         match dir {
             MoveDir::Up =>    (self.pos.0-1, self.pos.1  ),
@@ -47,15 +55,17 @@ impl Player {
         }
     }
 
+    /// Displays the player on the screen
     pub fn draw(&self, state: &mut State, map: &Map) {
         let (w,h) = crate::SCALE;
         let x = (getmaxx(state.win) as usize - (map.cols()*w))/2;
         let y = (getmaxy(state.win) as usize - (map.rows()*h))/3;
         for i in 0..h {
-            print!("{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), "█".repeat(w as usize));
+            print!("{}{}", Goto(self.pos.0*h+y+i, self.pos.1*w+x), "█".repeat(w));
         }
     }
 
+    /// Get the interactable the player is currently looking at
     pub fn get_interact(&mut self, map: &Map) -> Option<(usize,usize)> {
         let pu = self.get(MoveDir::Up);
         let pd = self.get(MoveDir::Down);

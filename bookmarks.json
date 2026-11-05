@@ -4,7 +4,7 @@
 			"path": "src/data/map/mod.rs",
 			"bookmarks": [
 				{
-					"line": 126,
+					"line": 140,
 					"column": 8,
 					"label": "Entrances"
 				}
@@ -14,7 +14,7 @@
 			"path": "src/runtime/mod.rs",
 			"bookmarks": [
 				{
-					"line": 33,
+					"line": 39,
 					"column": 4,
 					"label": "Map definitions"
 				}

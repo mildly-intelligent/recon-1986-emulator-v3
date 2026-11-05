@@ -1,3 +1,5 @@
+//! Module for the map data and room numbers
+
 mod interact;
 
 use crate::utils::*;
@@ -8,12 +10,15 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 // #[derive(Debug)]
-pub struct Map{
+/// A single room with interacts
+pub struct Map {
+    /// Vector of lines in the map
     lines: Vec<String>,
+    /// A dictionary containing the indices and actions for the map's interacts
     interacts: HashMap<u8, Interact>,
 }
-
 impl Map {
+    /// Creates a new map with the given lines
     pub fn new(lines: [&str; crate::MAP_ROWS]) -> Self {
         Map {
             lines: lines.map(|a| String::from(a)).to_vec(),
@@ -21,13 +26,17 @@ impl Map {
         }
     }
 
+    /// Gets the number of rows in the map
     pub fn rows(&self) -> usize { self.lines.len() }
+    /// Gets the number of columns in the map
     pub fn cols(&self) -> usize { self.lines.iter().map(|a| a.len()).max().unwrap() }
 
+    /// Gets the character at a given position (y, x)
     pub fn at(&self, pos: (usize, usize)) -> Option<u8> {
         Some(*self.lines.get(pos.0 as usize)?.as_bytes().get(pos.1 as usize)?)
     }
 
+    /// Draws the map to the screen
     pub fn draw(&self, state: &mut State, player: &mut super::player::Player) {
         let (w,h) = crate::SCALE;
         let x = (getmaxx(state.win) as usize - (self.cols()*w))/2;
@@ -35,23 +44,23 @@ impl Map {
 
         for (i, line) in self.lines.iter().enumerate() {
             let mut line = line.clone();
-            repeat_char(&mut line, ' ', " ", w);
-            repeat_char(&mut line, '-', "-", w);
-            repeat_char(&mut line, '|', "|", w);
-            repeat_char(&mut line, '+', "+", w);
-            repeat_char(&mut line, '#', "#", w);
-            repeat_char(&mut line, 'X', "X", w);
+            duplicate_char(&mut line, ' ', " ", w);
+            duplicate_char(&mut line, '-', "-", w);
+            duplicate_char(&mut line, '|', "|", w);
+            duplicate_char(&mut line, '+', "+", w);
+            duplicate_char(&mut line, '#', "#", w);
+            duplicate_char(&mut line, 'X', "X", w);
 
             if let Some(c) = player.interact {
-                repeat_char(&mut line, c as char, "*", w);
+                duplicate_char(&mut line, c as char, "*", w);
                 self.get_interact(c).unwrap().draw(state);
             }
 
             for n in '0'..='9' {
-                repeat_char(&mut line, n, "?", w);
+                duplicate_char(&mut line, n, "?", w);
             }
             for n in 'A'..='F' {
-                repeat_char(&mut line, n, "?", w);
+                duplicate_char(&mut line, n, "?", w);
             }
 
             // Gang what the fuck is this line 😔✌️
@@ -63,6 +72,7 @@ impl Map {
         }
     }
 
+    /// Sets an interact with a given index to an interact
     pub fn set_interact<F>(self, index: u8, name: Option<&str>, description: &str, action: F) -> Self
     where F: Fn(&mut Data) -> () + 'static
     {
@@ -79,6 +89,7 @@ impl Map {
         new
     }
 
+    /// Duplicates 
     pub fn dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
         let mut new = self;
         let old_interact = new.get_interact(index_old)?;
@@ -98,29 +109,32 @@ impl Map {
         Ok(new)
     }
 
+    /// Get the interact at an index, returns Err if there is no interact with the index
     pub fn get_interact(&self, index: u8) -> Result<&Interact, ()> {
         self.interacts.get(&index).ok_or(())
     }
 }
 
 #[derive(Clone, Copy)]
-pub enum Maps {
+/// Enum of the different rooms
+pub enum Rooms {
     OpenOcean,
     AirLock,
     Crossways,
 }
-impl Into<usize> for Maps {
+impl Into<usize> for Rooms {
     fn into(self) -> usize {
         match self {
-            Maps::OpenOcean => 0,
-            Maps::AirLock => 1,
-            Maps::Crossways => 2,
+            Rooms::OpenOcean => 0,
+            Rooms::AirLock => 1,
+            Rooms::Crossways => 2,
         }
     }
 }
 
-use Maps::*;
-pub struct Entrance(pub Maps, pub Maps);
+use Rooms::*;
+/// A specific one way door between rooms
+pub struct Entrance(pub Rooms, pub Rooms);
 impl Into<Option<(usize, usize)>> for Entrance {
     fn into(self) -> Option<(usize, usize)> {
         // This match is where you're entering and the second is where you came from
@@ -140,11 +154,10 @@ impl Into<Option<(usize, usize)>> for Entrance {
         }
     }
 }
-
-impl std::ops::Index<Maps> for [Map] {
+impl std::ops::Index<Rooms> for [Map] {
     type Output = Map;
 
-    fn index(&self, index: Maps) -> &Self::Output {
+    fn index(&self, index: Rooms) -> &Self::Output {
         &self[Into::<usize>::into(index)]
     }
 }

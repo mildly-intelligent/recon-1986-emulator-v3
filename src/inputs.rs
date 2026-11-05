@@ -1,22 +1,30 @@
+//! Module for handling player inputs
+
 use crate::data::{Data, player::MoveDir};
 
 use ncurses::{KEY_BACKSPACE, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_UP};
 
 #[derive(Clone, Copy)]
 #[allow(dead_code)]
+/// What context the input is in
 pub enum Context {
+    /// When the player is on the map, playing
     Map,
+    /// When the player is looking at an overlay
     Overlay,
     Pause,
     Title,
 }
 
+/// Performs an interact action
 fn do_interact(data: &mut Data) {
     if let Some(i) = data.1.interact {
         (data.2.get_interact(i).unwrap().action)(data)
     }
 }
 
+/// Handles a player input with a given key.
+/// Context dependent.
 pub fn handle_input(key: i32, data: &mut Data) -> bool {
     match data.0.ctx {
         Context::Map => match key {

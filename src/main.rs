@@ -3,7 +3,9 @@ mod utils;
 mod data;
 mod runtime;
 
+/// Scale of one cell on the map
 const SCALE: (usize,usize) = (5,3);
+/// Number of rows in one map room
 const MAP_ROWS: usize = 12;
 
 fn main() {

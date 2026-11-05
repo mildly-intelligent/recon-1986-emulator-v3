@@ -1,7 +1,9 @@
+//! Contains enums for simplifying ANSI escape code use
+
 use std::fmt::Display;
 
 #[allow(dead_code)]
-#[derive(Debug)]
+/// Changes the color of text
 pub enum Color {
     DefaultColor,
     Black,
@@ -20,6 +22,7 @@ pub enum Color {
     LightMagenta,
     LightCyan,
     White,
+    /// Changes color to an 8-bit color
     C256(u8),
 }
 impl Display for Color {
@@ -48,8 +51,10 @@ impl Display for Color {
 }
 
 #[allow(dead_code)]
-#[derive(Debug)]
+/// Changes the style of the text
 pub enum Style {
+    /// Disables all styles
+    /// To disable one style, use `Not<STYLE>`
     Reset,
     Bold,
     NotBold,
@@ -81,8 +86,9 @@ impl Display for Style {
 }
 
 #[allow(dead_code)]
-#[derive(Debug)]
+/// Other ANSI escape codes such as cursor movement and screen clearing
 pub enum Other {
+    /// Goes to position (1,1)
     Home,
     Goto(usize, usize),
     Up(usize),
@@ -92,7 +98,9 @@ pub enum Other {
     Column(usize),
     Next(usize),
     Prev(usize),
+    /// Saves the position of the cursor to memory, use [Other::Restore] to move the cursor back
     Save,
+    /// Returns the cursor to the position when [Other::Save] was used
     Restore,
     Clear,
 }

@@ -1,19 +1,25 @@
+//! Main game loop code
+
 #[cfg(not(debug_assertions))]
 pub mod startup;
 
+use crate::utils::*;
+use crate::data::{Data, State, map::{Map, Rooms}, player::Player};
+use crate::inputs::Context;
+
+#[cfg(not(debug_assertions))]
+use crate::inputs::handle_input;
+#[cfg(not(debug_assertions))]
 use ncurses::getch;
 
-use crate::utils::*;
-
-use crate::data::map::Maps;
-use crate::data::{Data, State, map::Map, player::Player};
-use crate::inputs::{handle_input, Context};
-
+/// Number of rooms in the game
 const ROOM_COUNT: usize = 3;
+
+/// Initializes global state and variables
 pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, usize)), ()> {
     let state = State {
         win,
-        current_map: Maps::Crossways,
+        current_map: Rooms::Crossways,
         ctx: Context::Title,
         current_objective: String::from("Explore"),
         inventory: vec![
@@ -45,7 +51,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "|       XX                     |",
             "|        X                     |",
             "--------------------------------",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Maps::AirLock)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Rooms::AirLock)),
         Map::new([
             "           |11111111|           ",
             "           |        |           ",
@@ -59,8 +65,8 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "           |        |           ",
             "           |        |           ",
             "           ---0000---           ",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Maps::OpenOcean))
-          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Maps::Crossways)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Rooms::OpenOcean))
+          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Rooms::Crossways)),
         Map::new([
             "       ------------------       ",
             "       |      3333      --------",
@@ -74,11 +80,11 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "       |4              5|       ",
             "       |4              5|       ",
             "       -----00000000-----       ",
-        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
-          .set_interact(b'1', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
-          .set_interact(b'2', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
-          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new_ctx(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVV\nTODO : <---\nTODO : --->"))
-          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new_ctx(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))
+        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::OpenOcean))
+          .set_interact(b'1', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::OpenOcean))
+          .set_interact(b'2', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::OpenOcean))
+          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVV\nTODO : <---\nTODO : --->"))
+          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))
           .dup_interact(b'5', b'4', None)?
           .dup_interact(b'6', b'4', None)?
           .dup_interact(b'7', b'4', None)?,
@@ -88,6 +94,12 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
 }
 
 #[cfg(not(debug_assertions))]
+/// Sequence of visual events to do before starting the game. Does, in order:
+/// 1. Runs the [startup sequence](startup::startup_sequence()),
+/// 2. Displaying the title car
+/// 3. Clears the screen and sets starting context
+/// 
+/// 1 and 2 are disabled in debug mode.
 pub fn start(data: &mut Data, (w, h): (usize, usize)) {
     startup::startup_sequence();
     
@@ -116,6 +128,12 @@ pub fn start(data: &mut Data, (w, h): (usize, usize)) {
     data.0.ctx = Context::Map;
 }
 
+/// Sequence of visual events to do before starting the game. Does, in order:
+/// 1. Runs the [startup sequence](startup::startup_sequence()),
+/// 2. Displaying the title car
+/// 3. Clears the screen and sets starting context
+/// 
+/// 1 and 2 are disabled in debug mode.
 #[cfg(debug_assertions)]
 pub fn start(data: &mut Data, (_w, _h): (usize, usize)) {
     println!("{}{}\x1b[?25l", Clear, Home);

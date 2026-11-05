@@ -1,15 +1,20 @@
+//! Fake startup sequence to display (in release builds only) at the beginning of the game
+
 use crate::utils::*;
 
+/// Draws an animated ellipsis for an amount of time
+/// * `ticks` - One tick is adding one dot to the ellipsis
 fn ellipsis(ticks: usize) {
     print!("{}{}", Up(1), Save);
     for t in 0..ticks {
         let t = t%4;
         println!("{}{}", Restore, ".".repeat(t) + &" ".repeat(3-t));
-        sleep(250);
+        sleep_millis(250);
     }
     println!("{}...", Restore);
 }
 
+/// A sequence of fake status messages to give the illusion of real emulator things
 pub fn startup_sequence() {
     let debug =   |msg: &str| format!("{}  {}{}  Debug{}{} {msg}", Column(1), Magenta,  Bold, NotBold, DefaultColor);
     let info =    |msg: &str| format!("{}  {}{}   Info{}{} {msg}", Column(1), Cyan,     Bold, NotBold, DefaultColor);
@@ -25,11 +30,11 @@ pub fn startup_sequence() {
     println!("{}", info("Loading program ROM"));
     ellipsis(8);
     println!("{}", warning("Map data may have been corrupted or lost when loading"));
-    sleep(250);
+    sleep_millis(250);
     println!("{}", debug("Failed to write over data in ROM at address $2000-$2FFF (map data)"));
-    sleep(250);
+    sleep_millis(250);
     println!("{}", debug("Possible faulty initial RAM decay pattern"));
-    sleep(250);
+    sleep_millis(250);
     println!("{}", info("Initializing virtual display"));
     ellipsis(6);
     println!("{}", info("Initializing virtual controls panel"));

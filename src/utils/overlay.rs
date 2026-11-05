@@ -1,18 +1,20 @@
 use crate::inputs;
 use crate::utils::*;
-use crate::data::{State, Data};
+use crate::data::{/*State, */Data};
 
 use ncurses::getch;
-use regex::Regex;
+// use regex::Regex;
 
+/// A struct for storing text overlays
 pub struct Overlay {
     y: usize,
     x: usize,
     h: usize,
     w: usize,
-    text: Option<String>,
+    // text: Option<String>,
 }
 impl Overlay {
+    /// Creates a new empty overlay with a given with and height
     pub fn new(w: *mut i8, width: usize, height: usize) -> Self {
         let screen_w = getmaxx(w) as usize;
         let screen_h = getmaxy(w) as usize;
@@ -22,31 +24,33 @@ impl Overlay {
             y: (screen_h - height) / 2,
             w: width,
             h: height,
-            text: None,
+            // text: None,
         }
     }
 
-    pub fn from(state: &State, text: &str) -> Self {
-        let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
-        let screen_w = getmaxx(state.win) as usize;
-        let screen_h = getmaxy(state.win) as usize;
+    /// Creates an automatically sized overlay from a string
+    // pub fn from(state: &State, text: &str) -> Self {
+    //     let ansi_regex = Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap();
+    //     let screen_w = getmaxx(state.win) as usize;
+    //     let screen_h = getmaxy(state.win) as usize;
 
-        let split: Vec<&str> = text.split('\n').collect();
-        let width = split.iter()
-            .map(|a| ansi_regex.replace_all(a, "").chars().count())
-            .max()
-            .unwrap();
-        let height = split.len();
+    //     let split: Vec<&str> = text.split('\n').collect();
+    //     let width = split.iter()
+    //         .map(|a| ansi_regex.replace_all(a, "").chars().count())
+    //         .max()
+    //         .unwrap();
+    //     let height = split.len();
 
-        Self {
-            x: (screen_w - width) / 2,
-            y: (screen_h - height) / 2,
-            w: width,
-            h: height,
-            text: Some(String::from(text)),
-        }
-    }
+    //     Self {
+    //         x: (screen_w - width) / 2,
+    //         y: (screen_h - height) / 2,
+    //         w: width,
+    //         h: height,
+    //         // text: Some(String::from(text)),
+    //     }
+    // }
 
+    /// Draws just the border around the overlay
     fn draw_border(&self) {
         let center = format!("{}     | {} |     {}", Column(self.x-7), " ".repeat(self.w), Down(1));
         println!("{}     {}     ", Goto(self.y-2, self.x-7), " ".repeat(self.w+4));
@@ -56,7 +60,9 @@ impl Overlay {
         println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w+4));
     }
 
-    pub fn print_new(data: &mut Data, text: &str) {
+    /// Creates and prints a new overlay from a string.
+    /// Does not change [context](crate::inputs::Context)
+    pub fn print_new_no_ctx(data: &mut Data, text: &str) {
         let split: Vec<&str> = text.split('\n').collect();
         let width = split.iter()
             .map(|a| ANSI_REGEX.replace_all(a, "").chars().count())
@@ -69,11 +75,14 @@ impl Overlay {
         overlay.print(text, Some(data));
     }
 
-    pub fn print_new_ctx(data: &mut Data, text: &str) {
+    /// Creates and prints a new overlay from a string.
+    /// Does change [context](crate::inputs::Context)
+    pub fn print_new(data: &mut Data, text: &str) {
         data.0.ctx = inputs::Context::Overlay;
-        Self::print_new(data, text);
+        Self::print_new_no_ctx(data, text);
     }
 
+    /// Prints a stored overlay to screen
     pub fn print(&self, text: &str, data: Option<&mut Data>) {
         self.draw_border();
 
@@ -93,6 +102,4 @@ impl Overlay {
             }
         }
     }
-
-    pub fn draw(&self) { self.print(self.text.as_ref().unwrap().as_str(), None) }
 }
