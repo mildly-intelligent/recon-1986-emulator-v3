@@ -48,12 +48,12 @@ impl Overlay {
     }
 
     fn draw_border(&self) {
-        let center = format!("{}     | {} |     {}", Column(self.x-7), " ".repeat(self.w as usize), Down(1));
-        println!("{}     {}     ", Goto(self.y-2, self.x-7), " ".repeat(self.w as usize+4));
-        println!("{}     {}     ", Column(self.x-7), "-".repeat(self.w as usize+4));
-        println!("{}{}", center.repeat(self.h as usize), Up(1));
-        println!("{}     {}     ", Column(self.x-7), "-".repeat(self.w as usize+4));
-        println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w as usize+4));
+        let center = format!("{}     | {} |     {}", Column(self.x-7), " ".repeat(self.w), Down(1));
+        println!("{}     {}     ", Goto(self.y-2, self.x-7), " ".repeat(self.w+4));
+        println!("{}     +{}+     ", Column(self.x-7), "-".repeat(self.w+2));
+        println!("{}{}", center.repeat(self.h), Up(1));
+        println!("{}     +{}+     ", Column(self.x-7), "-".repeat(self.w+2));
+        println!("{}     {}     ", Column(self.x-7), " ".repeat(self.w+4));
     }
 
     pub fn print_new(data: &mut Data, text: &str) {

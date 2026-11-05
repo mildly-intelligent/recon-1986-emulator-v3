@@ -5,7 +5,6 @@ mod runtime;
 
 const SCALE: (usize,usize) = (5,3);
 const MAP_ROWS: usize = 12;
-const ROOM_COUNT: usize = 2;
 
 fn main() {
     ncurses::noecho();

@@ -79,7 +79,7 @@ impl Map {
         new
     }
 
-    pub fn _dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
+    pub fn dup_interact(self, index_new: u8, index_old: u8, new_name: Option<&str>) -> Result<Self, ()> {
         let mut new = self;
         let old_interact = new.get_interact(index_old)?;
 
@@ -123,6 +123,7 @@ use Maps::*;
 pub struct Entrance(pub Maps, pub Maps);
 impl Into<Option<(usize, usize)>> for Entrance {
     fn into(self) -> Option<(usize, usize)> {
+        // This match is where you're entering and the second is where you came from
         match self.1 {
             OpenOcean => match self.0 {
                 AirLock => Some((4,15)),
@@ -133,6 +134,7 @@ impl Into<Option<(usize, usize)>> for Entrance {
                 _ => None,
             },
             Crossways => match self.0 {
+                AirLock => Some((10,15)),
                 _ => None,
             },
         }

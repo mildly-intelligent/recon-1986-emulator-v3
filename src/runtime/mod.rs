@@ -3,15 +3,17 @@ pub mod startup;
 
 use ncurses::getch;
 
+use crate::utils::*;
+
 use crate::data::map::Maps;
-use crate::{ROOM_COUNT, utils::*};
 use crate::data::{Data, State, map::Map, player::Player};
 use crate::inputs::{handle_input, Context};
 
+const ROOM_COUNT: usize = 3;
 pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, usize)), ()> {
     let state = State {
         win,
-        current_map: Maps::OpenOcean,
+        current_map: Maps::Crossways,
         ctx: Context::Title,
         current_objective: String::from("Explore"),
         inventory: vec![
@@ -34,7 +36,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "----------                 -----",
             "|  XXX   |              ----   |",
             "|   XX   |            ---      |",
-            "|   X    ----000000----        |",
+            "|   X    -----0000-----        |",
             "|                              |",
             "|                              |",
             "|        X               X     |",
@@ -43,8 +45,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "|       XX                     |",
             "|        X                     |",
             "--------------------------------",
-        ])
-            .set_interact(b'0', Some("Airlock"), "Enter Airlock", |d| d.map(Maps::AirLock)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Maps::AirLock)),
         Map::new([
             "           |11111111|           ",
             "           |        |           ",
@@ -58,9 +59,29 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "           |        |           ",
             "           |        |           ",
             "           ---0000---           ",
-        ])
-            .set_interact(b'0', Some("Airlock"), "Exit Airlock", |d| d.map(Maps::OpenOcean))
-            .set_interact(b'1', Some("Airlock"), "Enter Vessel", |d| d.map(Maps::Crossways)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Maps::OpenOcean))
+          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Maps::Crossways)),
+        Map::new([
+            "       ------------------       ",
+            "       |      3333      --------",
+            "--------                       2",
+            "1                              2",
+            "1                              2",
+            "--------                --------",
+            "       |6              7|       ",
+            "       |6              7|       ",
+            "       |                |       ",
+            "       |4              5|       ",
+            "       |4              5|       ",
+            "       -----00000000-----       ",
+        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
+          .set_interact(b'1', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
+          .set_interact(b'2', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Maps::OpenOcean))
+          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new_ctx(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVV\nTODO : <---\nTODO : --->"))
+          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new_ctx(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))
+          .dup_interact(b'5', b'4', None)?
+          .dup_interact(b'6', b'4', None)?
+          .dup_interact(b'7', b'4', None)?,
     ];
 
     Ok((state, player, maps, (screen_w, screen_h)))

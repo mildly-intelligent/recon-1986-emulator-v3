@@ -1,11 +1,21 @@
 {
 	"files": [
 		{
+			"path": "src/data/map/mod.rs",
+			"bookmarks": [
+				{
+					"line": 126,
+					"column": 8,
+					"label": "Entrances"
+				}
+			]
+		},
+		{
 			"path": "src/runtime/mod.rs",
 			"bookmarks": [
 				{
-					"line": 31,
-					"column": 35,
+					"line": 33,
+					"column": 4,
 					"label": "Map definitions"
 				}
 			]

@@ -26,10 +26,10 @@ impl State {
         println!("{}{}", Goto(y+1, x), pad(&self.current_objective, ' ', w*2));
         println!("{}{}", Goto(screen_h - 1, x), "~".repeat(w*2));
 
-        println!("{}{}", Goto(state_y+1, x*5), "~".repeat(w*6));
-        println!("{}{}", Goto(y-1, x*5), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w*6));
-        println!("{}{}", Goto(y+1, x*5), pad(&self.inventory.join(" | "), ' ', w*6));
-        println!("{}{}", Goto(screen_h - 1, x*5), "~".repeat(w*6));
+        println!("{}{}", Goto(state_y+1, x*4), "~".repeat(w*8));
+        println!("{}{}", Goto(y-1, x*4), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w*8));
+        println!("{}{}", Goto(y+1, x*4), pad(&self.inventory.join(" | "), ' ', w*8));
+        println!("{}{}", Goto(screen_h - 1, x*4), "~".repeat(w*8));
     }
 }
 impl AsMut<State> for State {
