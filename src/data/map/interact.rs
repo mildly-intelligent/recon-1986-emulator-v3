@@ -5,9 +5,6 @@ use std::rc::Rc;
 use crate::utils::*;
 use crate::data::{Data, State};
 
-/// Type alias for actions that interacts can trigger
-pub type InteractAction = dyn Fn(&mut Data) -> ();
-
 /// An interact object in the maps
 pub struct Interact {
     /// The name to display in the status bar
@@ -15,7 +12,7 @@ pub struct Interact {
     /// Description of the action to display
     pub description: String,
     /// Function to run when clicking on the action
-    pub action: Rc<InteractAction>,
+    pub action: Rc<fn(&mut Data)>,
 }
 impl Default for Interact {
     fn default() -> Self {

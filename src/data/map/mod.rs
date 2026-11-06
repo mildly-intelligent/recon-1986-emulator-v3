@@ -73,9 +73,7 @@ impl Map {
     }
 
     /// Sets an interact with a given index to an interact
-    pub fn set_interact<F>(self, index: u8, name: Option<&str>, description: &str, action: F) -> Self
-    where F: Fn(&mut Data) -> () + 'static
-    {
+    pub fn set_interact(self, index: u8, name: Option<&str>, description: &str, action: fn(&mut Data)) -> Self {
         let mut new = self;
         new.interacts.insert(
             index,
