@@ -50,3 +50,21 @@ pub fn sleep_millis(millis: u64) {
 pub fn sleep_micros(micros: u64) {
     std::thread::sleep(std::time::Duration::from_micros(micros))
 }
+
+/// Returns a [usize] from a hexadecimal digit mapping 0-F to 0-15. Returns [Err] if the byte is not a hexadecimal digit.
+/// Examples
+/// ```
+/// assert_eq!(Ok(0xC), hex(b'C'))
+/// assert_eq!(Ok(0x3), hex(b'3'))
+/// ```
+pub fn hex(n: u8) -> Result<usize, ()> {
+    {
+        if (b'0'..=b'9').contains(&n) {
+            Ok(n - b'0')
+        } else if (b'A'..=b'F').contains(&n) {
+            Ok(n - b'A' + 10)
+        } else {
+            Err(())
+        }
+    }.and_then(|a| Ok(a as usize))
+}

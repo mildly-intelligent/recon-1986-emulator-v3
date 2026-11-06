@@ -6,7 +6,6 @@ use crate::utils::*;
 use crate::data::{State, Data};
 use interact::Interact;
 
-use std::collections::HashMap;
 use std::rc::Rc;
 
 // #[derive(Debug)]
@@ -15,14 +14,15 @@ pub struct Map {
     /// Vector of lines in the map
     lines: Vec<String>,
     /// A dictionary containing the indices and actions for the map's interacts
-    interacts: HashMap<u8, Interact>,
+    // interacts: HashMap<u8, Interact>,
+    interacts: Vec<Interact>,
 }
 impl Map {
     /// Creates a new map with the given lines
     pub fn new(lines: [&str; crate::MAP_ROWS]) -> Self {
         Map {
-            lines: lines.map(|a| String::from(a)).to_vec(),
-            interacts: HashMap::new(),
+            lines: lines.map(str::to_string).to_vec(),
+            interacts: vec![],
         }
     }
 
@@ -73,10 +73,10 @@ impl Map {
     }
 
     /// Sets an interact with a given index to an interact
-    pub fn set_interact(self, index: u8, name: Option<&str>, description: &str, action: fn(&mut Data)) -> Self {
+    pub fn set_interact(self, index: u8, name: Option<&str>, description: &str, action: fn(&mut Data)) -> Result<Self, ()> {
         let mut new = self;
         new.interacts.insert(
-            index,
+            hex(index)?,
             Interact {
                 name: name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold))),
                 description: String::from(description),
@@ -84,7 +84,7 @@ impl Map {
             }
         );
 
-        new
+        Ok(new)
     }
 
     /// Duplicates 
@@ -96,7 +96,7 @@ impl Map {
         let description = old_interact.description.clone();
         let action = old_interact.action.clone();
         new.interacts.insert(
-            index_new,
+            hex(index_new)?,
             Interact {
                 name: new_name.or(old_interact.name.clone()),
                 description: String::from(description),
@@ -109,7 +109,7 @@ impl Map {
 
     /// Get the interact at an index, returns Err if there is no interact with the index
     pub fn get_interact(&self, index: u8) -> Result<&Interact, ()> {
-        self.interacts.get(&index).ok_or(())
+        self.interacts.get(hex(index)?).ok_or(())
     }
 }
 

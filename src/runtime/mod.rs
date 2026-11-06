@@ -51,7 +51,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "|       XX                     |",
             "|        X                     |",
             "--------------------------------",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Rooms::AirLock)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Rooms::AirLock))?,
         Map::new([
             "           |11111111|           ",
             "           |        |           ",
@@ -65,8 +65,8 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "           |        |           ",
             "           |        |           ",
             "           ---0000---           ",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Rooms::OpenOcean))
-          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Rooms::Crossways)),
+        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Rooms::OpenOcean))?
+          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Rooms::Crossways))?,
         Map::new([
             "       ------------------       ",
             "       |      3333      --------",
@@ -80,11 +80,11 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "       |4              5|       ",
             "       |4              5|       ",
             "       -----00000000-----       ",
-        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::AirLock))
-          .set_interact(b'1', Some("Doorway"), "Go to Hallway 1", |d| d.map(Rooms::Hall1))
-          .set_interact(b'2', Some("Doorway"), "Go to Hallway 2", |d| d.map(Rooms::Hall2))
-          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVVV\nLabs 1-4 : <---\nObservatory : <---\nQuarters : --->\nCafeteria : --->\nLounge : --->"))
-          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))
+        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::AirLock))?
+          .set_interact(b'1', Some("Doorway"), "Go to Hallway 1", |d| d.map(Rooms::Hall1))?
+          .set_interact(b'2', Some("Doorway"), "Go to Hallway 2", |d| d.map(Rooms::Hall2))?
+          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVVV\nLabs 1-4 : <---\nObservatory : <---\nQuarters : --->\nCafeteria : --->\nLounge : --->"))?
+          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))?
           .dup_interact(b'5', b'4', None)?
           .dup_interact(b'6', b'4', None)?
           .dup_interact(b'7', b'4', None)?,
@@ -101,12 +101,12 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             "    |      |   |      |         ",
             "    |      |   |      |         ",
             "    |333333|   |222222|         ",
-        ]).set_interact(b'0', Some("Door"), "Enter Main Antechamber", |d| d.map(Rooms::Crossways))
-          .set_interact(b'1', Some("Door"), "Enter Lab 1", |d| d.map(Rooms::Lab1))
-          .set_interact(b'2', Some("Door"), "Enter Lab 2", |d| d.map(Rooms::Lab2))
-          .set_interact(b'3', Some("Door"), "Enter Lab 3", |d| d.map(Rooms::Lab3))
-          .set_interact(b'4', Some("Door"), "Enter Lab 4", |d| d.map(Rooms::Lab4))
-          .set_interact(b'5', Some("Door"), "Enter Observatory", |d| d.map(Rooms::Observatory)),
+        ]).set_interact(b'0', Some("Door"), "Enter Main Antechamber", |d| d.map(Rooms::Crossways))?
+          .set_interact(b'1', Some("Door"), "Enter Lab 1", |d| d.map(Rooms::Lab1))?
+          .set_interact(b'2', Some("Door"), "Enter Lab 2", |d| d.map(Rooms::Lab2))?
+          .set_interact(b'3', Some("Door"), "Enter Lab 3", |d| d.map(Rooms::Lab3))?
+          .set_interact(b'4', Some("Door"), "Enter Lab 4", |d| d.map(Rooms::Lab4))?
+          .set_interact(b'5', Some("Door"), "Enter Observatory", |d| d.map(Rooms::Observatory))?,
         Map::new([
             "                                ",
             "                                ",
