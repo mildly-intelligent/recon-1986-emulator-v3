@@ -3,6 +3,34 @@
 use crate::utils::*;
 use crate::data::{Data, State};
 
+#[derive(Clone, Copy)]
+pub struct ConstInteract {
+    /// The name to display in the status bar
+    pub name: Option<&'static str>,
+    /// Description of the action to display
+    pub description: &'static str,
+    /// Function to run when clicking on the action
+    pub action: fn(&mut Data),
+}
+impl ConstInteract {
+    pub const fn default() -> Self {
+        Self {
+            name: None,
+            description: "Examine",
+            action: |_a| ()
+        }
+    }
+}
+impl Into<Interact> for ConstInteract {
+    fn into(self) -> Interact {
+        Interact {
+            name: self.name.map(str::to_string),
+            description: self.description.to_string(),
+            action: self.action,
+        }
+    }
+}
+
 #[derive(Clone)]
 /// An interact object in the maps
 pub struct Interact {
@@ -36,10 +64,10 @@ impl Interact {
         // 
         println!("{}{}", Goto(state_y+1, x*13), "~".repeat(w*2));
         if let Some(name) = &self.name {
-            println!("{}{}", Goto(y-1, x*13), pad(name, ' ', w*2))
+            println!("{}{}", Goto(y-1, x*13), pad(&name.to_string(), ' ', w*2))
         }
         println!("{}{}", Goto(y, x*13), pad(&format!("{}{}press {}<enter>{} to{}{}", LightBlack, Italic, Blink, NotBlink, NotItalic, DefaultColor), ' ', w*2));
-        println!("{}{}", Goto(y+1, x*13), pad(&self.description, ' ', w*2));
+        println!("{}{}", Goto(y+1, x*13), pad(&self.description.to_string(), ' ', w*2));
         println!("{}{}", Goto(screen_h - 1, x*13), "~".repeat(w*2));
     }
 }

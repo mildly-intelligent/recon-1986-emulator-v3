@@ -84,6 +84,22 @@ impl Display for Style {
         }
     }
 }
+impl Style {
+    pub fn not(&self) -> Result<Self, ()> {
+        match self {
+            Style::Bold => Ok(Style::NotBold),
+            Style::Italic => Ok(Style::NotItalic),
+            Style::Underline => Ok(Style::NotUnderline),
+            Style::Blink => Ok(Style::NotBlink),
+            Style::Invert => Ok(Style::NotInvert),
+            _ => Err(())
+        }
+    }
+
+    pub fn wrap(&self, s: String) -> Result<String, ()> {
+        Ok(format!("{}{s}{}", self, self.not()?))
+    }
+}
 
 #[allow(dead_code)]
 /// Other ANSI escape codes such as cursor movement and screen clearing

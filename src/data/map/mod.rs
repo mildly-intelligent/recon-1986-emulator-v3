@@ -4,7 +4,56 @@ mod interact;
 
 use crate::utils::*;
 use crate::data::{State, Data};
-use interact::Interact;
+use interact::{ConstInteract, Interact};
+
+pub struct ConstMap {
+    lines: [&'static str; crate::MAP_ROWS],
+    interacts: [ConstInteract; 16],
+}
+impl ConstMap {
+    pub const fn new(lines: [&'static str; crate::MAP_ROWS]) -> Self {
+        ConstMap {
+            lines,
+            interacts: [ConstInteract::default(); 16],
+        }
+    }
+
+    /// Sets an interact with a given index to an interact
+    pub const fn set_interact(self, index: u8, name: Option<&'static str>, description: &'static str, action: fn(&mut Data)) -> Self {
+        let mut new = self;
+        new.interacts[hex_const(index)] = ConstInteract {
+            name,
+            description,
+            action,
+        };
+
+        new
+    }
+
+    /// Creates a duplicate interact 
+    pub const fn dup_interact(self, index_new: u8, index_old: u8) -> Self {
+        let mut new = self;
+        let old_interact = new.interacts[hex_const(index_old)];
+
+        new.interacts[hex_const(index_new)] = old_interact;
+        
+        new
+    }
+}
+impl Into<Map> for ConstMap {
+    fn into(self) -> Map {
+        let interacts: Vec<Interact> = self.interacts.map(ConstInteract::into).to_vec();
+        let interacts = interacts.iter().map(|i| -> Interact {
+            let mut i = i.clone();
+            i.name = i.name.and_then(|a| Bold.wrap(a).ok());
+            i
+        }).collect();
+        Map {
+            lines: self.lines.map(str::to_string).to_vec(),
+            interacts,
+        }
+    }
+}
 
 // #[derive(Debug)]
 /// A single room with interacts
@@ -85,7 +134,7 @@ impl Map {
         Ok(new)
     }
 
-    /// Duplicates 
+    /// Creates a duplicate interact 
     pub fn dup_interact(self, index_new: u8, index_old: u8) -> Result<Self, ()> {
         let mut new = self;
         let old_interact = new.get_interact(index_old)?;

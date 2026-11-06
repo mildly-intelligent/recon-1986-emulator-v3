@@ -68,3 +68,12 @@ pub fn hex(n: u8) -> Result<usize, ()> {
         }
     }.and_then(|a| Ok(a as usize))
 }
+pub const fn hex_const(n: u8) -> usize {
+    if b'0' <= n && n <= b'9' {
+        (n - b'0') as usize
+    } else if b'A' <= n && n <= b'F' {
+        (n - b'A' + 10) as usize
+    } else {
+        panic!("")
+    }
+}
