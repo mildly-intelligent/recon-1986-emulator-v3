@@ -121,15 +121,13 @@ pub enum Rooms {
     OpenOcean,
     AirLock,
     Crossways,
-}
-impl Into<usize> for Rooms {
-    fn into(self) -> usize {
-        match self {
-            Rooms::OpenOcean => 0,
-            Rooms::AirLock => 1,
-            Rooms::Crossways => 2,
-        }
-    }
+    Hall1,
+    Hall2,
+    Lab1,
+    Lab2,
+    Lab3,
+    Lab4,
+    Observatory,
 }
 
 use Rooms::*;
@@ -145,12 +143,18 @@ impl Into<Option<(usize, usize)>> for Entrance {
             },
             AirLock => match self.0 {
                 OpenOcean => Some((10,15)),
+                Crossways => Some((1,15)),
                 _ => None,
             },
             Crossways => match self.0 {
                 AirLock => Some((10,15)),
+                Hall1 => Some((3,1)),
+                Hall2 => Some((3,28)),
                 _ => None,
             },
+            Hall1 => todo!(),
+            Hall2 => todo!(),
+            _ => todo!(),
         }
     }
 }
@@ -158,6 +162,6 @@ impl std::ops::Index<Rooms> for [Map] {
     type Output = Map;
 
     fn index(&self, index: Rooms) -> &Self::Output {
-        &self[Into::<usize>::into(index)]
+        &self[Into::<usize>::into(index as usize)]
     }
 }
