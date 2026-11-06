@@ -85,9 +85,9 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
           .set_interact(b'2', Some("Doorway"), "Go to Hallway 2", |d| d.map(Rooms::Hall2))?
           .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVVV\nLabs 1-4 : <---\nObservatory : <---\nQuarters : --->\nCafeteria : --->\nLounge : --->"))?
           .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))?
-          .dup_interact(b'5', b'4', None)?
-          .dup_interact(b'6', b'4', None)?
-          .dup_interact(b'7', b'4', None)?,
+          .dup_interact(b'5', b'4')?
+          .dup_interact(b'6', b'4')?
+          .dup_interact(b'7', b'4')?,
         Map::new([
             "    |444444|   |111111|         ",
             "    |      |   |      |         ",

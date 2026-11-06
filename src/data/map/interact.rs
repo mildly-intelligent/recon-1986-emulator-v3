@@ -5,6 +5,7 @@ use std::rc::Rc;
 use crate::utils::*;
 use crate::data::{Data, State};
 
+#[derive(Clone)]
 /// An interact object in the maps
 pub struct Interact {
     /// The name to display in the status bar
