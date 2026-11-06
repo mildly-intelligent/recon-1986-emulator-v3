@@ -1,7 +1,5 @@
 //! Module for handling interact objects on the map
 
-use std::rc::Rc;
-
 use crate::utils::*;
 use crate::data::{Data, State};
 
@@ -13,14 +11,14 @@ pub struct Interact {
     /// Description of the action to display
     pub description: String,
     /// Function to run when clicking on the action
-    pub action: Rc<fn(&mut Data)>,
+    pub action: fn(&mut Data),
 }
 impl Default for Interact {
     fn default() -> Self {
         Self {
             name: None,
             description: String::from("Examine"),
-            action: Rc::new(|_d| ())
+            action: |_d| ()
         }
     }
 }

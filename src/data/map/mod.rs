@@ -6,8 +6,6 @@ use crate::utils::*;
 use crate::data::{State, Data};
 use interact::Interact;
 
-use std::rc::Rc;
-
 // #[derive(Debug)]
 /// A single room with interacts
 pub struct Map {
@@ -80,7 +78,7 @@ impl Map {
             Interact {
                 name: name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold))),
                 description: String::from(description),
-                action: Rc::new(action),
+                action: action,
             }
         );
 
