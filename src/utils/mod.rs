@@ -54,9 +54,20 @@ pub fn hex(n: u8) -> Result<usize, ()> {
     }.and_then(|a| Ok(a as usize))
 }
 
-pub trait StringUtils: std::fmt::Display + AsRef<str> + ToString {
-    fn wrap(&self, escape_code: impl AnsiCode) -> Result<String, ()> {
-        Ok(escape_code.wrap(self)?.into())
+/// Trait to implement utility methods on strings and string-like types
+pub trait StringUtils:
+std::fmt::Display + AsRef<str> + ToString
+{
+    /// Wraps the string in some [AnsiCode] escape.
+    /// This is equivalent to putting some escape then a string, then the inverse of the string.
+    /// Examples:
+    /// ```
+    /// assert_eq!("hello".wrap(Bold).unwrap(), "\x1b[1mhello\x1b[22m")
+    /// assert_eq!("test".wrap(Italic).unwrap(), format!("{}test{}", Italic, NotItalic))
+    /// ```
+    /// See also: [AnsiCode::not]
+    fn wrap(&self, code: impl AnsiCode) -> Result<String, ()> {
+        Ok(format!("{}{self}{}", self, code.not()?))
     }
 
     /// Pad a string in the center of a string of `c` with length `n`.
