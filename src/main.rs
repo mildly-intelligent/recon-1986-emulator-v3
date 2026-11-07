@@ -20,11 +20,11 @@ fn main() {
     let m = &maps[s.current_map];
     let mut data = data::Data(&mut s, &mut p, &m);
 
-    runtime::start(&mut data);
+    runtime::start(&mut data).unwrap();
 
     while !inputs::handle_input(ncurses::getch(), &mut data) {        
         data.2 = &maps[data.0.current_map];
-        data.draw();
-        data.0.draw();
+        data.draw().unwrap();
+        data.0.draw().unwrap();
     }
 }

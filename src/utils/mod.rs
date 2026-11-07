@@ -6,7 +6,7 @@ mod ansi_escape;
 use regex::Regex;
 use std::sync::LazyLock;
 
-pub use ansi_escape::{Color::*, Style::*, Other::*};
+pub use ansi_escape::{Color::*, Style::*, Other::*, AnsiCode};
 pub use overlay::Overlay;
 pub use ncurses::{getmaxx, getmaxy};
 
@@ -23,21 +23,6 @@ pub fn duplicate_char(s: &mut String, c1: char, c2: &str, n: usize) {
 /// Regex for matching ANSI escape sequences
 pub const ANSI_REGEX: LazyLock<Regex> = 
     LazyLock::new(|| Regex::new(r"\x1B\[(?:\d{1,4})?(?:;\d{1,4})*[A-HJm]").unwrap());
-
-/// Pad a string in the center of a string of `c` with length `n`.
-/// Examples
-/// ```
-/// let s1 = String::from("hi")
-/// let s2 = String::from("test")
-/// assert_eq!(pad(s1, ' ', 6), String::from("  hi  "))
-/// assert_eq!(pad(s1, '~', 6), String::from("~~hi~~"))
-/// assert_eq!(pad(s2, '~', 8), String::from("~~test~~"))
-/// ```
-pub fn pad(s: &String, c: char, n: usize) -> String {
-    let len = ANSI_REGEX.replace_all(s, "").len();
-    let pad = c.to_string().repeat((n - len)/2);
-    format!("{}{s}{}", pad, pad)
-}
 
 #[allow(unused)]
 #[doc(alias = "sleep")]
@@ -77,3 +62,28 @@ pub const fn hex_const(n: u8) -> usize {
         panic!("")
     }
 }
+
+pub trait StringUtils: std::fmt::Display + AsRef<str> + ToString {
+    fn wrap(&self, escape_code: impl AnsiCode) -> Result<String, ()> {
+        Ok(escape_code.wrap(self)?.into())
+    }
+
+    /// Pad a string in the center of a string of `c` with length `n`.
+    /// Examples
+    /// ```
+    /// let s1 = String::from("hi");
+    /// let s2 = String::from("test");
+    /// assert_eq!(pad(s1, ' ', 6), String::from("  hi  "));
+    /// assert_eq!(pad(s1, '~', 6), String::from("~~hi~~"));
+    /// assert_eq!(pad(s2, '~', 8), String::from("~~test~~"));
+    /// assert_eq!(pad("hello", 'h', 9), "hhhellohh");
+    /// ```
+    fn pad(&self, c: char, n: usize) -> String {
+        let len = ANSI_REGEX.replace_all(&self.to_string(), "").len();
+        let pad = c.to_string().repeat((n - len)/2);
+        format!("{}{self}{}", pad, pad)
+    }
+}
+
+impl StringUtils for String {}
+impl StringUtils for &str {}
