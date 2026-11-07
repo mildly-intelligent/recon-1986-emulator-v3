@@ -1,9 +1,35 @@
 //! Module for handling interact objects on the map
 
-use std::rc::Rc;
-
 use crate::utils::*;
 use crate::data::{Data, State};
+
+#[derive(Clone, Copy)]
+pub struct ConstInteract {
+    /// The name to display in the status bar
+    pub name: Option<&'static str>,
+    /// Description of the action to display
+    pub description: &'static str,
+    /// Function to run when clicking on the action
+    pub action: fn(&mut Data),
+}
+impl ConstInteract {
+    pub const fn default() -> Self {
+        Self {
+            name: None,
+            description: "Examine",
+            action: |_a| ()
+        }
+    }
+}
+impl Into<Interact> for ConstInteract {
+    fn into(self) -> Interact {
+        Interact {
+            name: self.name.map(str::to_string),
+            description: self.description.to_string(),
+            action: self.action,
+        }
+    }
+}
 
 #[derive(Clone)]
 /// An interact object in the maps
@@ -13,14 +39,14 @@ pub struct Interact {
     /// Description of the action to display
     pub description: String,
     /// Function to run when clicking on the action
-    pub action: Rc<fn(&mut Data)>,
+    pub action: fn(&mut Data),
 }
 impl Default for Interact {
     fn default() -> Self {
         Self {
             name: None,
             description: String::from("Examine"),
-            action: Rc::new(|_d| ())
+            action: |_d| ()
         }
     }
 }
@@ -38,10 +64,10 @@ impl Interact {
         // 
         println!("{}{}", Goto(state_y+1, x*13), "~".repeat(w*2));
         if let Some(name) = &self.name {
-            println!("{}{}", Goto(y-1, x*13), name.pad(' ', w*2))
+            println!("{}{}", Goto(y-1, x*13), name.to_string().pad(' ', w*2))
         }
-        println!("{}{}", Goto(y, x*13), format!("press {} to", "<enter>".wrap(Blink)?).wrap(Italic)?.wrap(LightBlack)?.pad(' ', w*2));
-        println!("{}{}", Goto(y+1, x*13), self.description.pad(' ', w*2));
+        println!("{}{}", Goto(y, x*13), format!("press {} to", "<enter>".wrap(Blink)?).wrap(LightBlack)?.wrap(Italic)?.pad(' ', w*2));
+        println!("{}{}", Goto(y+1, x*13), self.description.to_string().pad(' ', w*2));
         println!("{}{}", Goto(screen_h - 1, x*13), "~".repeat(w*2));
 
         Ok(())

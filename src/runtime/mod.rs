@@ -4,7 +4,7 @@
 pub mod startup;
 
 use crate::utils::*;
-use crate::data::{Data, State, map::{Map, Rooms}, player::Player};
+use crate::data::{Data, State, map::{Map, ConstMap, Rooms}, player::Player};
 use crate::inputs::Context;
 
 #[cfg(not(debug_assertions))]
@@ -14,6 +14,98 @@ use ncurses::getch;
 
 /// Number of rooms in the game
 const ROOM_COUNT: usize = 5;
+
+const OPEN_OCEAN: ConstMap = ConstMap::new([ 
+    "----------                 -----",
+    "|  XXX   |              ----   |",
+    "|   XX   |            ---      |",
+    "|   X    -----0000-----        |",
+    "|                              |",
+    "|                              |",
+    "|        X               X     |",
+    "|      XXXXX             XXX   |",
+    "|     XXX  X             XX    |",
+    "|       XX                     |",
+    "|        X                     |",
+    "--------------------------------",
+]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Rooms::AirLock));
+const AIR_LOCK: ConstMap = ConstMap::new([
+    "           |11111111|           ",
+    "           |        |           ",
+    "           |        |           ",
+    "           ----++----           ",
+    "               ##               ",
+    "               ##               ",
+    "               ##               ",
+    "               ##               ",
+    "           ----++----           ",
+    "           |        |           ",
+    "           |        |           ",
+    "           ---0000---           ",
+]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Rooms::OpenOcean))
+  .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Rooms::Crossways));
+const CROSSWAYS: ConstMap = ConstMap::new([
+    "       ------------------       ",
+    "       |      3333      --------",
+    "--------                       2",
+    "1                              2",
+    "1                              2",
+    "--------                --------",
+    "       |6              7|       ",
+    "       |6              7|       ",
+    "       |                |       ",
+    "       |4              5|       ",
+    "       |4              5|       ",
+    "       -----00000000-----       ",
+]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::AirLock))
+  .set_interact(b'1', Some("Doorway"), "Go to Hallway 1", |d| d.map(Rooms::Hall1))
+  .set_interact(b'2', Some("Doorway"), "Go to Hallway 2", |d| d.map(Rooms::Hall2))
+  .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVVV\nLabs 1-4 : <---\nObservatory : <---\nQuarters : --->\nCafeteria : --->\nLounge : --->"))
+  .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))
+  .dup_interact(b'5', b'4')
+  .dup_interact(b'6', b'4')
+  .dup_interact(b'7', b'4');
+const HALLWAY_1: ConstMap = ConstMap::new([
+    "    |444444|   |111111|         ",
+    "    |      |   |      |         ",
+    "    |      |   |      |         ",
+    "-----      -----      -------   ",
+    "5                           ----",
+    "5                              0",
+    "5                              0",
+    "5                           ----",
+    "-----      -----      -------   ",
+    "    |      |   |      |         ",
+    "    |      |   |      |         ",
+    "    |333333|   |222222|         ",
+]).set_interact(b'0', Some("Door"), "Enter Main Antechamber", |d| d.map(Rooms::Crossways))
+  .set_interact(b'1', Some("Door"), "Enter Lab 1", |d| d.map(Rooms::Lab1))
+  .set_interact(b'2', Some("Door"), "Enter Lab 2", |d| d.map(Rooms::Lab2))
+  .set_interact(b'3', Some("Door"), "Enter Lab 3", |d| d.map(Rooms::Lab3))
+  .set_interact(b'4', Some("Door"), "Enter Lab 4", |d| d.map(Rooms::Lab4))
+  .set_interact(b'5', Some("Door"), "Enter Observatory", |d| d.map(Rooms::Observatory));
+const HALLWAY_2: ConstMap = ConstMap::new([
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+    "                                ",
+]);
+
+pub const ROOMS: [ConstMap; ROOM_COUNT] = [
+    OPEN_OCEAN,
+    AIR_LOCK,
+    CROSSWAYS,
+    HALLWAY_1,
+    HALLWAY_2,
+];
 
 /// Initializes global state and variables
 pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT]), ()> {
@@ -34,91 +126,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT]), ()> {
         interact: None
     };
 
-    let maps: [Map; ROOM_COUNT] = [
-        Map::new([ 
-            "----------                 -----",
-            "|  XXX   |              ----   |",
-            "|   XX   |            ---      |",
-            "|   X    -----0000-----        |",
-            "|                              |",
-            "|                              |",
-            "|        X               X     |",
-            "|      XXXXX             XXX   |",
-            "|     XXX  X             XX    |",
-            "|       XX                     |",
-            "|        X                     |",
-            "--------------------------------",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Enter Airlock", |d| d.map(Rooms::AirLock))?,
-        Map::new([
-            "           |11111111|           ",
-            "           |        |           ",
-            "           |        |           ",
-            "           ----++----           ",
-            "               ##               ",
-            "               ##               ",
-            "               ##               ",
-            "               ##               ",
-            "           ----++----           ",
-            "           |        |           ",
-            "           |        |           ",
-            "           ---0000---           ",
-        ]).set_interact(b'0', Some("Outer Airlock"), "Exit Airlock", |d| d.map(Rooms::OpenOcean))?
-          .set_interact(b'1', Some("Inner Airlock"), "Enter Vessel", |d| d.map(Rooms::Crossways))?,
-        Map::new([
-            "       ------------------       ",
-            "       |      3333      --------",
-            "--------                       2",
-            "1                              2",
-            "1                              2",
-            "--------                --------",
-            "       |6              7|       ",
-            "       |6              7|       ",
-            "       |                |       ",
-            "       |4              5|       ",
-            "       |4              5|       ",
-            "       -----00000000-----       ",
-        ]).set_interact(b'0', Some("Inner Airlock"), "Leave Vessel Airlock", |d| d.map(Rooms::AirLock))?
-          .set_interact(b'1', Some("Doorway"), "Go to Hallway 1", |d| d.map(Rooms::Hall1))?
-          .set_interact(b'2', Some("Doorway"), "Go to Hallway 2", |d| d.map(Rooms::Hall2))?
-          .set_interact(b'3', Some("Map"), "Examine", |d| Overlay::print_new(d, "It's a map of the vessel.\n-----\nPressure suits : You are here\nAirlock : VVVV\nLabs 1-4 : <---\nObservatory : <---\nQuarters : --->\nCafeteria : --->\nLounge : --->"))?
-          .set_interact(b'4', Some("Pressure suit"), "Examine", |d| Overlay::print_new(d, "This is where the crew got the suits to go outside.\nWell, most of the crew."))?
-          .dup_interact(b'5', b'4')?
-          .dup_interact(b'6', b'4')?
-          .dup_interact(b'7', b'4')?,
-        Map::new([
-            "    |444444|   |111111|         ",
-            "    |      |   |      |         ",
-            "    |      |   |      |         ",
-            "-----      -----      -------   ",
-            "5                           ----",
-            "5                              0",
-            "5                              0",
-            "5                           ----",
-            "-----      -----      -------   ",
-            "    |      |   |      |         ",
-            "    |      |   |      |         ",
-            "    |333333|   |222222|         ",
-        ]).set_interact(b'0', Some("Door"), "Enter Main Antechamber", |d| d.map(Rooms::Crossways))?
-          .set_interact(b'1', Some("Door"), "Enter Lab 1", |d| d.map(Rooms::Lab1))?
-          .set_interact(b'2', Some("Door"), "Enter Lab 2", |d| d.map(Rooms::Lab2))?
-          .set_interact(b'3', Some("Door"), "Enter Lab 3", |d| d.map(Rooms::Lab3))?
-          .set_interact(b'4', Some("Door"), "Enter Lab 4", |d| d.map(Rooms::Lab4))?
-          .set_interact(b'5', Some("Door"), "Enter Observatory", |d| d.map(Rooms::Observatory))?,
-        Map::new([
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-            "                                ",
-        ]),
-    ];
+    let maps: [Map; ROOM_COUNT] = ROOMS.map(|a| a.into());
 
     Ok((state, player, maps))
 }
