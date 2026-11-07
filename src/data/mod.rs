@@ -23,7 +23,7 @@ pub struct State {
 }
 impl State {
     /// Draws the status bar at the bottom of the screen
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self) -> Result<(), ()> {
         let (screen_w, screen_h) = (getmaxx(self.win) as usize, getmaxy(self.win) as usize);
 
         let x = screen_w / 16;
@@ -32,14 +32,16 @@ impl State {
         let w = screen_w * 1/16;
 
         println!("{}{}", Goto(state_y+1, x), "~".repeat(w*2));
-        println!("{}{}", Goto(y-1, x), pad(&format!("{}Objective{}", Bold, NotBold), ' ', w*2));
-        println!("{}{}", Goto(y+1, x), pad(&self.current_objective, ' ', w*2));
+        println!("{}{}", Goto(y-1, x), "Objective".wrap(Bold)?.pad(' ', w*2));
+        println!("{}{}", Goto(y+1, x), self.current_objective.pad(' ', w*2));
         println!("{}{}", Goto(screen_h - 1, x), "~".repeat(w*2));
 
         println!("{}{}", Goto(state_y+1, x*4), "~".repeat(w*8));
-        println!("{}{}", Goto(y-1, x*4), pad(&format!("{}Inventory{}", Bold, NotBold), ' ', w*8));
-        println!("{}{}", Goto(y+1, x*4), pad(&self.inventory.join(" | "), ' ', w*8));
+        println!("{}{}", Goto(y-1, x*4), "Inventory".wrap(Bold)?.pad(' ', w*8));
+        println!("{}{}", Goto(y+1, x*4), self.inventory.join(" | ").pad(' ', w*8));
         println!("{}{}", Goto(screen_h - 1, x*4), "~".repeat(w*8));
+
+        Ok(())
     }
 }
 impl AsMut<State> for State {
@@ -52,13 +54,15 @@ impl AsMut<State> for State {
 pub struct Data<'a>(pub &'a mut State, pub &'a mut Player, pub &'a Map);
 impl<'a> Data<'a> {
     /// Draws all relevant information to the screen
-    pub fn draw(&mut self) {
+    pub fn draw(&mut self) -> Result<(), ()> {
         let Self(state, player, map) = self;
         print!("{}{}", Clear, Home);
         player.get_interact(map);
-        map.draw(state, player);
+        map.draw(state, player)?;
         player.draw(state, map);
         println!();
+
+        Ok(())
     }
 
     /// Switches map to a different room

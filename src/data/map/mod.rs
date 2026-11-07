@@ -37,7 +37,7 @@ impl Map {
     }
 
     /// Draws the map to the screen
-    pub fn draw(&self, state: &mut State, player: &mut super::player::Player) {
+    pub fn draw(&self, state: &mut State, player: &mut super::player::Player) -> Result<(), ()> {
         let (w,h) = crate::SCALE;
         let x = (getmaxx(state.win) as usize - (self.cols()*w))/2;
         let y = (getmaxy(state.win) as usize - (self.rows()*h))/3;
@@ -53,7 +53,7 @@ impl Map {
 
             if let Some(c) = player.interact {
                 duplicate_char(&mut line, c as char, "*", w);
-                self.get_interact(c).unwrap().draw(state);
+                self.get_interact(c).unwrap().draw(state)?;
             }
 
             for n in '0'..='9' {
@@ -70,6 +70,8 @@ impl Map {
                 print!("{}{line}", Goto(h*i+y+j, x));
             }
         }
+
+        Ok(())
     }
 
     /// Sets an interact with a given index to an interact
@@ -78,7 +80,7 @@ impl Map {
         new.interacts.insert(
             hex(index)?,
             Interact {
-                name: name.and_then(|a| Some(format!("{}{}{}", Bold, a, NotBold))),
+                name: name.and_then(|a| a.wrap(Bold).ok()),
                 description: String::from(description),
                 action: Rc::new(action),
             }

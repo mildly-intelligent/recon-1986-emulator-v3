@@ -26,7 +26,7 @@ impl Default for Interact {
 }
 impl Interact {
     /// Draws the interact to the status bar
-    pub fn draw(&self, state: &mut State) {
+    pub fn draw(&self, state: &mut State) -> Result<(), ()> {
         let (screen_w, screen_h) = (getmaxx(state.win) as usize, getmaxy(state.win) as usize);
 
         let x = screen_w / 16;
@@ -38,10 +38,12 @@ impl Interact {
         // 
         println!("{}{}", Goto(state_y+1, x*13), "~".repeat(w*2));
         if let Some(name) = &self.name {
-            println!("{}{}", Goto(y-1, x*13), pad(name, ' ', w*2))
+            println!("{}{}", Goto(y-1, x*13), name.pad(' ', w*2))
         }
-        println!("{}{}", Goto(y, x*13), pad(&format!("{}{}press {}<enter>{} to{}{}", LightBlack, Italic, Blink, NotBlink, NotItalic, DefaultColor), ' ', w*2));
-        println!("{}{}", Goto(y+1, x*13), pad(&self.description, ' ', w*2));
+        println!("{}{}", Goto(y, x*13), format!("press {} to", "<enter>".wrap(Blink)?).wrap(Italic)?.wrap(LightBlack)?.pad(' ', w*2));
+        println!("{}{}", Goto(y+1, x*13), self.description.pad(' ', w*2));
         println!("{}{}", Goto(screen_h - 1, x*13), "~".repeat(w*2));
+
+        Ok(())
     }
 }

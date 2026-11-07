@@ -2,6 +2,15 @@
 
 use std::fmt::Display;
 
+pub trait AnsiCode: Display + Sized {
+    fn not(&self) -> Result<Self, ()>;
+    fn wrap<T>(&self, s: T) -> Result<String, ()>
+    where T: AsRef<str> + Display
+    {
+        Ok(format!("{}{s}{}", self, self.not()?))
+    }
+}
+
 #[allow(dead_code)]
 /// Changes the color of text
 pub enum Color {
@@ -49,6 +58,14 @@ impl Display for Color {
         }
     }
 }
+impl AnsiCode for Color {
+    fn not(&self) -> Result<Self, ()> {
+        match self {
+            Self::DefaultColor => Err(()),
+            _ => Ok(Self::DefaultColor),
+        }
+    }
+}
 
 #[allow(dead_code)]
 /// Changes the style of the text
@@ -81,6 +98,18 @@ impl Display for Style {
             Style::NotBlink => write!(f, "\x1b[25m"),
             Style::Invert => write!(f, "\x1b[7m"),
             Style::NotInvert => write!(f, "\x1b[27m"),
+        }
+    }
+}
+impl AnsiCode for Style {
+    fn not(&self) -> Result<Self, ()> {
+        match self {
+            Style::Bold => Ok(Style::NotBold),
+            Style::Italic => Ok(Style::NotItalic),
+            Style::Underline => Ok(Style::NotUnderline),
+            Style::Blink => Ok(Style::NotBlink),
+            Style::Invert => Ok(Style::NotInvert),
+            _ => Err(())
         }
     }
 }
@@ -119,6 +148,20 @@ impl Display for Other {
             Other::Save => write!(f, "\x1b[s"),
             Other::Restore => write!(f, "\x1b[u"),
             Other::Clear => write!(f, "\x1b[2J\x1b[H"),
+        }
+    }
+}
+impl AnsiCode for Other {
+    fn not(&self) -> Result<Self, ()> {
+        match self {
+            Self::Up(n) => Ok(Self::Down(*n)),
+            Self::Down(n) => Ok(Self::Up(*n)),
+            Self::Right(n) => Ok(Self::Left(*n)),
+            Self::Left(n) => Ok(Self::Right(*n)),
+            Self::Next(n) => Ok(Self::Prev(*n)),
+            Self::Prev(n) => Ok(Self::Next(*n)),
+            Self::Save => Ok(Self::Restore),
+            _ => Err(()),
         }
     }
 }

@@ -16,7 +16,7 @@ use ncurses::getch;
 const ROOM_COUNT: usize = 5;
 
 /// Initializes global state and variables
-pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, usize)), ()> {
+pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT]), ()> {
     let state = State {
         win,
         current_map: Rooms::Crossways,
@@ -28,9 +28,6 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
             String::from("Flashlight"),
         ]
     };
-
-    let screen_w = getmaxx(state.win) as usize;
-    let screen_h = getmaxy(state.win) as usize;
 
     let player = Player {
         pos: (6,17),
@@ -123,7 +120,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
         ]),
     ];
 
-    Ok((state, player, maps, (screen_w, screen_h)))
+    Ok((state, player, maps))
 }
 
 #[cfg(not(debug_assertions))]
@@ -133,7 +130,7 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT], (usize, u
 /// 3. Clears the screen and sets starting context
 /// 
 /// 1 and 2 are disabled in debug mode.
-pub fn start(data: &mut Data, (w, h): (usize, usize)) {
+pub fn start(data: &mut Data, (w, h): (usize, usize)) -> Result<(), ()> {
     startup::startup_sequence();
     
     println!("{}{}\x1b[?25l", Clear, Home);
@@ -151,14 +148,16 @@ pub fn start(data: &mut Data, (w, h): (usize, usize)) {
         for i in 0..3000 {
             pos3000.0 = (pos3000.0 * 2791 + pos3000.1) % (h+1);
             pos3000.1 = (pos3000.1 * 7129 + pos3000.0) % ((w+1)/4);
-            print!("{}{}3000{}", Goto(pos3000.0, pos3000.1*4), C256((i%5) as u8+234), DefaultColor);
+            print!("{}{}", Goto(pos3000.0, pos3000.1*4), "3000".wrap(C256((i%5) as u8+234))?);
         }
         title_card.draw();
-        println!("{}{}{}Insert 5¢ to begin{}", Down(3), Column((w-18)/2), Blink, NotBlink);
+        println!("{}{}", Down(3), Column((w-18)/2), "Insert 5¢ to begin".wrap(Blink)?);
     }
 
-    data.draw();
+    data.draw()?;
     data.0.ctx = Context::Map;
+
+    Ok(())
 }
 
 /// Sequence of visual events to do before starting the game. Does, in order:
@@ -168,8 +167,10 @@ pub fn start(data: &mut Data, (w, h): (usize, usize)) {
 /// 
 /// 1 and 2 are disabled in debug mode.
 #[cfg(debug_assertions)]
-pub fn start(data: &mut Data, (_w, _h): (usize, usize)) {
+pub fn start(data: &mut Data) -> Result<(), ()> {
     println!("{}{}\x1b[?25l", Clear, Home);
-    data.draw();
+    data.draw()?;
     data.0.ctx = Context::Map;
+
+    Ok(())
 }
