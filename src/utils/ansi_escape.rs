@@ -2,13 +2,17 @@
 
 use std::fmt::Display;
 
+/// Generic trait for ansi escape sequences
 pub trait AnsiCode: Display + Sized {
+    /// Returns the reverse of a code.
+    /// Will [Err] if there is no logical inverse to the code.
+    /// Examples
+    /// ```
+    /// assert_eq!(Bold.not().unwrap(), NotBold);
+    /// assert_eq!(C256(56).not().unwrap(), DefaultColor);
+    /// assert_eq!(Down(3).not().unwrap(), Up(3));
+    /// ```
     fn not(&self) -> Result<Self, ()>;
-    fn wrap<T>(&self, s: T) -> Result<String, ()>
-    where T: AsRef<str> + Display
-    {
-        Ok(format!("{}{s}{}", self, self.not()?))
-    }
 }
 
 #[allow(dead_code)]
