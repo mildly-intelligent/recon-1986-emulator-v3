@@ -20,6 +20,7 @@ pub struct State {
     /// List of items in the inventory
     /// Currently not implemented for any reason other than the status bar
     pub inventory: Vec<String>,
+    pub(crate) y909: bool,
 }
 impl State {
     /// Draws the status bar at the bottom of the screen
@@ -66,7 +67,11 @@ impl<'a> Data<'a> {
     }
 
     /// Switches map to a different room
-    pub fn map(&mut self, map: map::Rooms) {
+    pub fn map(&mut self, mut map: map::Rooms) {
+        if self.0.y909 == true && map == Rooms::Hall1 {
+            map = Rooms::Hall1Alt;
+        }
+
         let entrance = Entrance(self.0.current_map, map);
         self.0.current_map = map;
         if let Some(pos) = entrance.into() {

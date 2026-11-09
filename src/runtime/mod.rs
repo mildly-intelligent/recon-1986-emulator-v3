@@ -13,7 +13,7 @@ use crate::inputs::handle_input;
 use ncurses::getch;
 
 /// Number of rooms in the game
-const ROOM_COUNT: usize = 5;
+const ROOM_COUNT: usize = 11;
 
 const OPEN_OCEAN: ConstMap = ConstMap::new([ 
     "----------                 -----",
@@ -47,9 +47,9 @@ const AIR_LOCK: ConstMap = ConstMap::new([
 const CROSSWAYS: ConstMap = ConstMap::new([
     "       ------------------       ",
     "       |      3333      --------",
-    "--------                       2",
-    "1                              2",
-    "1                              2",
+    "--------                X      2",
+    "1                       X      2",
+    "1                       X      2",
     "--------                --------",
     "       |6              7|       ",
     "       |6              7|       ",
@@ -66,59 +66,94 @@ const CROSSWAYS: ConstMap = ConstMap::new([
   .dup_interact(b'6', b'4')
   .dup_interact(b'7', b'4');
 const HALLWAY_1: ConstMap = ConstMap::new([
-    "    |444444|   |111111|         ",
-    "    |      |   |      |         ",
-    "    |      |   |      |         ",
-    "-----      -----      -------   ",
-    "5                           ----",
-    "5                              0",
-    "5                              0",
-    "5                           ----",
-    "-----      -----      -------   ",
-    "    |      |   |      |         ",
-    "    |      |   |      |         ",
     "    |333333|   |222222|         ",
+    "    |      |   |      |         ",
+    "    |      |   |      |         ",
+    "-----XXXXXX-----XXXXXX-------   ",
+    "5   X                       ----",
+    "5   X                          0",
+    "5   X                          0",
+    "5   X                       ----",
+    "-----      -----XXXXXX-------   ",
+    "    |      |   |      |         ",
+    "    |      |   |      |         ",
+    "    |444444|   |111111|         ",
 ]).set_interact(b'0', Some("Door"), "Enter Main Antechamber", |d| d.map(Rooms::Crossways))
   .set_interact(b'1', Some("Door"), "Enter Lab 1", |d| d.map(Rooms::Lab1))
   .set_interact(b'2', Some("Door"), "Enter Lab 2", |d| d.map(Rooms::Lab2))
   .set_interact(b'3', Some("Door"), "Enter Lab 3", |d| d.map(Rooms::Lab3))
   .set_interact(b'4', Some("Door"), "Enter Lab 4", |d| d.map(Rooms::Lab4))
   .set_interact(b'5', Some("Door"), "Enter Observatory", |d| d.map(Rooms::Observatory));
-const HALLWAY_2: ConstMap = ConstMap::new([
+const HALLWAY_2: ConstMap = ConstMap::default();
+const LAB_1: ConstMap = ConstMap::default();
+const LAB_2: ConstMap = ConstMap::default();
+const LAB_3: ConstMap = ConstMap::default();
+const OBSERVATORY: ConstMap = ConstMap::default();
+const LAB_4: ConstMap = ConstMap::new([
+    "             |0000|             ",
+    "             |    |             ",
+    "     ---------    ---------     ",
+    "     |               4    |     ",
+    "     |2             4    3|     ",
+    "     |2                  3|     ",
+    "     |2                  3|     ",
+    "     |       111111       |     ",
+    "     ----------------------     ",
     "                                ",
     "                                ",
     "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-    "                                ",
-]);
+]).set_interact(b'0', Some("Door"), "Leave lab 4", |d| d.map(Rooms::Hall1))
+  .set_interact(b'1', Some("Table"), "Examine", |d| Overlay::print_new(d, &format!("There's a bunch of lab equipment.\nYou can't seem to {} what it's for.", "remember".wrap(LightGreen).unwrap())))
+  .dup_interact(b'2', b'1')
+  .dup_interact(b'3', b'1')
+  .set_interact(b'4', Some("Chemical spill"), "Examine", |d| {
+    d.0.y909 = true;
+    d.0.current_objective = "Remember".wrap(LightGreen).unwrap();
+    Overlay::print_new(d, &format!("There's some spillage of chemicals.\nAnd many shards of broken glass that seem to have belonged to a beaker of some kind.\nOne shard has a label, it says {}.\n{}", "Y-909".wrap(Bold).unwrap().wrap(LightGreen).unwrap(), "What were you doing in here again?".wrap(Italic).unwrap().wrap(LightBlack).unwrap()));
+});
+const HALLWAY_1_ALT: ConstMap = ConstMap::new([
+    "    |000000|                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+    "    |      |                    ",
+]).set_interact(b'0', Some("???"), "Go on", |d| d.map(Rooms::Hall1Alt));
 
+/// List of rooms in the game.
 pub const ROOMS: [ConstMap; ROOM_COUNT] = [
     OPEN_OCEAN,
     AIR_LOCK,
     CROSSWAYS,
     HALLWAY_1,
     HALLWAY_2,
+    LAB_1,
+    LAB_2,
+    LAB_3,
+    LAB_4,
+    OBSERVATORY,
+    HALLWAY_1_ALT,
 ];
 
 /// Initializes global state and variables
 pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT]), ()> {
     let state = State {
         win,
-        current_map: Rooms::Crossways,
+        current_map: Rooms::OpenOcean,
         ctx: Context::Title,
         current_objective: String::from("Explore"),
         inventory: vec![
             String::from("Swiss army knife"),
             String::from("Cheese"),
             String::from("Flashlight"),
-        ]
+        ],
+        y909: false,
     };
 
     let player = Player {
@@ -138,19 +173,12 @@ pub fn init(win: *mut i8) -> Result<(State, Player, [Map; ROOM_COUNT]), ()> {
 /// 3. Clears the screen and sets starting context
 /// 
 /// 1 and 2 are disabled in debug mode.
-pub fn start(data: &mut Data, (w, h): (usize, usize)) -> Result<(), ()> {
-    startup::startup_sequence();
+pub fn start(data: &mut Data) -> Result<(), ()> {
+    let (w,h) = (getmaxx(data.0.win) as usize, getmaxy(data.0.win) as usize);
+
+    startup::startup_sequence()?;
     
     println!("{}{}\x1b[?25l", Clear, Home);
-    let title_card = overlay::Overlay::from(data.0, &format!("  __ __       _____    _____     _____      __   __   
- /_/\\__/\\   /\\_____\\  /\\ __/\\   ) ___ (    /_/\\ /\\_\\  
- ) ) ) ) ) ( (_____/  ) )__\\/  / /\\_/\\ \\   ) ) \\ ( (  
-/_/ /_/_/   \\ \\__\\   / / /    / /_/ (_\\ \\ /_/   \\ \\_\\ 
-\\ \\ \\ \\ \\   / /__/_  \\ \\ \\_   \\ \\ )_/ / / \\ \\ \\   / / 
- )_) ) \\ \\ ( (_____\\  ) )__/\\  \\ \\/_\\/ /   )_) \\ (_(  
- \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
-    pad(&String::from("Erimita Interactive LLC."), ' ', 54),
-    pad(&String::from("c. 1986"), ' ', 54)));
     let mut pos3000: (usize,usize) = (1,1);
     while !handle_input(getch(), data) {
         for i in 0..3000 {
@@ -158,8 +186,17 @@ pub fn start(data: &mut Data, (w, h): (usize, usize)) -> Result<(), ()> {
             pos3000.1 = (pos3000.1 * 7129 + pos3000.0) % ((w+1)/4);
             print!("{}{}", Goto(pos3000.0, pos3000.1*4), "3000".wrap(C256((i%5) as u8+234))?);
         }
-        title_card.draw();
-        println!("{}{}", Down(3), Column((w-18)/2), "Insert 5¢ to begin".wrap(Blink)?);
+        overlay::Overlay::print_new_no_ctx(data, &format!("  __ __       _____    _____     _____      __   __   
+ /_/\\__/\\   /\\_____\\  /\\ __/\\   ) ___ (    /_/\\ /\\_\\  
+ ) ) ) ) ) ( (_____/  ) )__\\/  / /\\_/\\ \\   ) ) \\ ( (  
+/_/ /_/_/   \\ \\__\\   / / /    / /_/ (_\\ \\ /_/   \\ \\_\\ 
+\\ \\ \\ \\ \\   / /__/_  \\ \\ \\_   \\ \\ )_/ / / \\ \\ \\   / / 
+ )_) ) \\ \\ ( (_____\\  ) )__/\\  \\ \\/_\\/ /   )_) \\ (_(  
+ \\_\\/ \\_\\/  \\/_____/  \\/___\\/   )_____(    \\_\\/ \\/_/  \n\n{}\n{}",
+            "Erimita Interactive LLC.".pad(' ', 54),
+            "c. 1986".pad(' ', 54)
+        ));
+        println!("{}{}{}", Down(3), Column((w-18)/2), "Insert 5¢ to begin".wrap(Blink)?);
     }
 
     data.draw()?;
@@ -173,7 +210,7 @@ pub fn start(data: &mut Data, (w, h): (usize, usize)) -> Result<(), ()> {
 /// 2. Displaying the title car
 /// 3. Clears the screen and sets starting context
 /// 
-/// 1 and 2 are disabled in debug mode.
+/// 1 and 2 are disabled in debug builds.
 #[cfg(debug_assertions)]
 pub fn start(data: &mut Data) -> Result<(), ()> {
     println!("{}{}\x1b[?25l", Clear, Home);

@@ -76,7 +76,7 @@ std::fmt::Display + AsRef<str> + ToString
     /// ```
     /// See also: [AnsiCode::not]
     fn wrap(&self, code: impl AnsiCode) -> Result<String, ()> {
-        Ok(format!("{}{self}{}", self, code.not()?))
+        Ok(format!("{}{self}{}", code, code.not()?))
     }
 
     /// Pad a string in the center of a string of `c` with length `n`.
@@ -84,15 +84,19 @@ std::fmt::Display + AsRef<str> + ToString
     /// ```
     /// let s1 = String::from("hi");
     /// let s2 = String::from("test");
-    /// assert_eq!(pad(s1, ' ', 6), String::from("  hi  "));
-    /// assert_eq!(pad(s1, '~', 6), String::from("~~hi~~"));
-    /// assert_eq!(pad(s2, '~', 8), String::from("~~test~~"));
-    /// assert_eq!(pad("hello", 'h', 9), "hhhellohh");
+    /// assert_eq!(s1.pad(' ', 6), String::from("  hi  "));
+    /// assert_eq!(s1.pad('~', 6), String::from("~~hi~~"));
+    /// assert_eq!(s2.pad('~', 8), String::from("~~test~~"));
+    /// assert_eq!("hello".pad('h', 9), "hhhellohh");
     /// ```
     fn pad(&self, c: char, n: usize) -> String {
         let len = ANSI_REGEX.replace_all(&self.to_string(), "").len();
-        let pad = c.to_string().repeat((n - len)/2);
-        format!("{}{self}{}", pad, pad)
+        if n > len {
+            let pad = c.to_string().repeat((n - len)/2);
+            format!("{}{self}{}", pad, pad)
+        } else {
+            format!("{}", self)
+        }
     }
 }
 

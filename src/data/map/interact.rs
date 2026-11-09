@@ -4,6 +4,7 @@ use crate::utils::*;
 use crate::data::{Data, State};
 
 #[derive(Clone, Copy)]
+/// A form of [Interact] that can be initialized as `const`
 pub struct ConstInteract {
     /// The name to display in the status bar
     pub name: Option<&'static str>,

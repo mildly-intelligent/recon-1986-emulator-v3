@@ -6,6 +6,7 @@ use crate::utils::*;
 use crate::data::{State, Data};
 use interact::{ConstInteract, Interact};
 
+/// A form of [Map] that can be initialized as `const`
 pub struct ConstMap {
     lines: [&'static str; crate::MAP_ROWS],
     interacts: [ConstInteract; 16],
@@ -38,6 +39,14 @@ impl ConstMap {
         new.interacts[hex_const(index_new)] = old_interact;
         
         new
+    }
+
+    /// See [Default]
+    pub const fn default() -> Self {
+        Self {
+            lines: ["                                "; crate::MAP_ROWS],
+            interacts: [ConstInteract::default(); 16],
+        }
     }
 }
 impl Into<Map> for ConstMap {
@@ -155,7 +164,7 @@ impl Map {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 /// Enum of the different rooms
 pub enum Rooms {
     OpenOcean,
@@ -168,6 +177,7 @@ pub enum Rooms {
     Lab3,
     Lab4,
     Observatory,
+    Hall1Alt,
 }
 
 use Rooms::*;
@@ -192,8 +202,20 @@ impl Into<Option<(usize, usize)>> for Entrance {
                 Hall2 => Some((3,28)),
                 _ => None,
             },
-            Hall1 => todo!(),
-            Hall2 => todo!(),
+            Hall1 => match self.0 {
+                Crossways => Some((5, 30)),
+                Lab4 => Some((10, 7)),
+                _ => None
+            },
+            Hall1Alt => match self.0 {
+                Lab4 => Some((10, 7)),
+                Hall1Alt => Some((10, 7)),
+                _ => None
+            },
+            Lab4 => match self.0 {
+                Hall1 => Some((1, 15)),
+                _ => None
+            }
             _ => todo!(),
         }
     }
