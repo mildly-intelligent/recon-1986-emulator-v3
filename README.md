@@ -2,7 +2,7 @@
 
 (A game made for [Terra](https://terra.hackclub.com/))
 
-Version 3.3 of the community emulator for the 1986 arcade game, *Recon* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
+Version 3.4 of the community emulator for the 1986 arcade game, *Recon* by Eremita Interactive LLC. This emulator is not officially licensed by Eremita Interactive LLC. or parent companies.
 
 ![Title screen](./screenshot.png)
 
